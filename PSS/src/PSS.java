@@ -25,12 +25,13 @@ public class PSS {
                 input = scanner.nextInt();
             }
             else if(input == 2){
+                scanner.nextLine();
                 System.out.println("Enter task's name: ");
                 // clear buffer or else code breaks
-                scanner.nextLine();
-                taskName = scanner.nextLine();
+                taskName = scanner.next();
                 findTask(taskName);
                 displayMenu();
+                
                 input = scanner.nextInt();
             }
             else if(input == 3){
@@ -52,7 +53,6 @@ public class PSS {
                 input = scanner.nextInt();
             }
         }
-        scanner.nextLine();
         scanner.close();
     }
     
@@ -112,7 +112,7 @@ public class PSS {
             // entering input for start time
             System.out.println("Input the start time: \n");
             Float taskStartTime = scanner.nextFloat();
-
+            verifyCollision(taskStartDate, taskStartTime, scanner);
             while(taskStartTime > 23.75 || taskStartTime < 0.25 || taskStartTime % (.25) != 0){
                 System.out.println("Invalid duration. Please input a valid duration between 0.25 and 23.75"); 
                 taskStartTime= scanner.nextFloat(); 
@@ -121,6 +121,7 @@ public class PSS {
             System.out.println("Input the duration: \n");
             
             float taskDuration = scanner.nextFloat(); 
+            verifyCollision(taskDuration, taskStartDate, taskStartTime, scanner);
             
             while(taskDuration > 23.75 || taskDuration < 0.25 || taskDuration % (.25) != 0){
                 System.out.println("Invalid duration. Please input a valid duration between 0.25 and 23.75"); 
@@ -134,7 +135,8 @@ public class PSS {
             
             System.out.println("Input the frequency: \n"); 
             int taskFreq = scanner.nextInt();  
-
+            
+            
             newTask.setName(taskName); 
             newTask.setType(taskType); 
             newTask.setStartDate(taskStartDate);
@@ -305,17 +307,31 @@ public class PSS {
                 }
             }
     }
-    public static void verifyCollision(float taskDuration, String taskStartDate, float taskStartTime, Scanner scanner){
+    public static void verifyCollision(String taskStartDate, float taskStartTime, Scanner scanner){
         for(int i = 0; i < taskList.size(); i++){
-            if(taskList.get(i).getStartDate() == taskStartDate ){
-                if(taskStartTime > taskList.get(i).getStartTime() && (taskList.get(i).getStartTime() + taskList.get(i).getDuration()) > taskStartTime){
-                    System.out.println("Invalid time. Re-enter a new time");
+            if(taskList.get(i).getStartDate().equals(taskStartDate)){
+                while(taskStartTime >= taskList.get(i).getStartTime() && (taskList.get(i).getStartTime() + taskList.get(i).getDuration()) > taskStartTime){
+                    System.out.println("Invalid time. Re-enter a new start time.");
+                    taskStartTime = scanner.nextFloat();
                 }
             }
         }
     }
+
+    public static void verifyCollision(Float taskDuration, String taskStartDate, float taskStartTime, Scanner scanner){
+        for(int i = 0; i < taskList.size(); i++){
+            if(taskList.get(i).getStartDate().equals(taskStartDate) && (taskList.get(i).getStartTime() + taskList.get(i).getDuration()) > taskStartTime){
+                while((taskStartTime + taskDuration) > taskList.get(i).getStartTime()){
+                    System.out.println("Invalid time. Re-enter a new duration.");
+                    taskStartTime = scanner.nextFloat();
+                }
+            }
+        }
+    }
+
     public void sorting(){
         ArrayList<Task> a = new ArrayList<>();
+        
     }
     public static void editTask(String taskName, Scanner scanner){
         findTask(taskName);
