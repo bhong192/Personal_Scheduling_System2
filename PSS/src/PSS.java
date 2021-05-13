@@ -211,5 +211,14 @@ public class PSS {
                 }
             }
     }
+    public static void verifyCollision(float taskDuration, String taskStartDate, float taskStartTime, Scanner scanner){
+        for(int i = 0; i < taskList.size(); i++){
+            if(taskList.get(i).getStartDate() == taskStartDate){
+                if(taskStartTime > taskList.get(i).getStartTime() && (taskList.get(i).getStartTime() + taskList.get(i).getDuration()) > taskStartTime){
+                    System.out.println("Invalid time. Re-enter a new time");
+                }
+            }
+        }
+    }
 }
 
