@@ -2,18 +2,20 @@ public class Task{
 
     private String name;
     private String type;
-    private int startDate;
+    private String startDate;
     private float startTime;
     private float duration;
-    private int endDate;
+    
 
-    public Task(String name, String type, int startDate, float startTime, float duration, int endDate){
+    public Task(){
+
+    }
+    public Task(String name, String type, String startDate, float startTime, float duration){
         this.name = name;
         this.type = type;
         this.startDate = startDate;
         this.startTime = startTime;
         this.duration = duration;
-        this.endDate = endDate;
     }
 
     public String getName(){
@@ -30,10 +32,10 @@ public class Task{
         this.type = type;
     }
 
-    public int getStartDate(){
+    public String getStartDate(){
         return this.startDate;
     }
-    public void setStartDate(int startDate){
+    public void setStartDate(String startDate){
         this.startDate = startDate; 
     }
 
@@ -51,10 +53,4 @@ public class Task{
         this.duration = duration; 
     }
 
-    public int getEndDate(){
-        return this.endDate;
-    }
-    public void setEndDate(int endDate){
-        this.endDate = endDate; 
-    }
 }
