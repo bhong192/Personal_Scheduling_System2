@@ -53,7 +53,6 @@ public class PSS {
                 input = scanner.nextInt();
             }
         }
-        scanner.nextLine();
         scanner.close();
     }
     
