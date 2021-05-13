@@ -44,7 +44,7 @@ public class Task{
     public float getStartTime(){
         return this.startTime;
     }
-    public void setStartTime(int startTime){
+    public void setStartTime(Float startTime){
         this.startTime = startTime; 
     }
 

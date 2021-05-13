@@ -13,13 +13,13 @@ public class PSS {
     
         displayMenu();
         input = scanner.nextInt();
-        scanner.nextLine();
+   
         
         while(input != 7){
 
             if(input == 1){
                 // clear buffer or else code breaks
-                //scanner.nextLine();
+                scanner.nextLine();
                 createTask(scanner);
                 displayMenu();
                 input = scanner.nextInt();
@@ -27,7 +27,7 @@ public class PSS {
             else if(input == 2){
                 System.out.println("Enter task's name: ");
                 // clear buffer or else code breaks
-               // scanner.nextLine();
+                scanner.nextLine();
                 taskName = scanner.nextLine();
                 findTask(taskName);
                 displayMenu();
@@ -36,7 +36,7 @@ public class PSS {
             else if(input == 3){
                 // clear buffer or else code breaks
                 System.out.println("Enter task's name: ");
-               // scanner.nextLine();
+                scanner.nextLine();
                 taskName = scanner.nextLine();
                 deleteTask(taskName);
                 displayMenu();
@@ -45,13 +45,14 @@ public class PSS {
             else if(input == 4){
                 // clear buffer or else code breaks
                 System.out.println("Enter task's name: ");
-               // scanner.nextLine();
+                scanner.nextLine();
                 taskName = scanner.nextLine();
                 editTask(taskName, scanner);
                 displayMenu();
                 input = scanner.nextInt();
             }
         }
+        scanner.nextLine();
         scanner.close();
     }
     
@@ -101,12 +102,21 @@ public class PSS {
             System.out.println("Input the start date: \n"); 
             String taskStartDate = scanner.nextLine(); 
             // check if start date is valid
-            verifyDate(taskStartDate, scanner);
-
+            try{
+                verifyDate(taskStartDate, scanner);
+            }
+            catch(Exception e){
+                System.out.println("Invalid date. Please input a valid start date.");
+                taskStartDate = scanner.nextLine();
+            }
             // entering input for start time
             System.out.println("Input the start time: \n");
-            int taskStartTime = scanner.nextInt();
+            Float taskStartTime = scanner.nextFloat();
 
+            while(taskStartTime > 23.75 || taskStartTime < 0.25 || taskStartTime % (.25) != 0){
+                System.out.println("Invalid duration. Please input a valid duration between 0.25 and 23.75"); 
+                taskStartTime= scanner.nextFloat(); 
+            }
             
             System.out.println("Input the duration: \n");
             
@@ -123,8 +133,7 @@ public class PSS {
             //verifyEndDate(taskEndDate, taskStartDate, scanner); 
             
             System.out.println("Input the frequency: \n"); 
-            int taskFreq = scanner.nextInt(); 
-            scanner.nextLine(); 
+            int taskFreq = scanner.nextInt();  
 
             newTask.setName(taskName); 
             newTask.setType(taskType); 
@@ -142,26 +151,51 @@ public class PSS {
 
             TransientTask newTask = new TransientTask();
 
-            System.out.println("Input the name of your task: "); 
+            System.out.println("Input the name of your task: \n"); 
             String taskName = scanner.nextLine(); 
-        
+            for(int i = 0; i < taskList.size(); i++ ){
+                if(taskList.get(i).getName().equals(taskName)){
+                    System.out.println("Task name is not unique. Re-enter a new name."); 
+                    taskName = scanner.nextLine(); 
+                }
+            }
+            
+
+            String[] validTypes = {"Visit", "Shopping", "Appointment"}; 
             System.out.println("Input the type of the task: ");
             String taskType = scanner.nextLine();  
 
+            while(!(Arrays.asList(validTypes).contains(taskType))){
+                System.out.println("Invalid task type! Input a new task type. \n");
+                taskType = scanner.nextLine();                
+            }
+
             System.out.println("Input the start date: "); 
             String taskStartDate = scanner.nextLine(); 
+            verifyDate(taskStartDate, scanner);
 
-            System.out.println("Input the end date: ");
-            String taskEndDate = scanner.nextLine(); 
+            System.out.println("Input the start time: \n");
+            Float taskStartTime = scanner.nextFloat();
+
+            while(taskStartTime > 23.75 || taskStartTime < 0.25 || taskStartTime % (.25) != 0){
+                System.out.println("Invalid duration. Please input a valid duration between 0.25 and 23.75"); 
+                taskStartTime= scanner.nextFloat(); 
+            }
+            
 
             System.out.println("Input the duration: ");
             Float taskDuration = scanner.nextFloat();  
+        
+            while(taskDuration > 23.75 || taskDuration < 0.25 || taskDuration % (.25) != 0){
+                System.out.println("Invalid duration. Please input a valid duration between 0.25 and 23.75"); 
+                taskDuration = scanner.nextFloat(); 
+            }
 
             newTask.setName(taskName); 
             newTask.setType(taskType); 
             newTask.setStartDate(taskStartDate);
+            newTask.setStartTime(taskStartTime);
             newTask.setDuration(taskDuration);
-            newTask.setEndDate(taskEndDate);
             newTask.setCategory(taskCategory);
             taskList.add(newTask); 
         } 
@@ -271,9 +305,6 @@ public class PSS {
                 }
             }
     }
-    public void verifyDuration(){
-
-    }
     public static void verifyCollision(float taskDuration, String taskStartDate, float taskStartTime, Scanner scanner){
         for(int i = 0; i < taskList.size(); i++){
             if(taskList.get(i).getStartDate() == taskStartDate ){
@@ -363,7 +394,7 @@ public class PSS {
                 scanner.nextLine();
                   // entering input for start time
                 System.out.println("Input the start time: \n");
-                int taskStartTime = scanner.nextInt();
+                float taskStartTime = scanner.nextFloat();
                 taskList.get(i).setStartTime(taskStartTime);
                 displayMenuT(i);
                 input = scanner.nextInt();
@@ -449,7 +480,7 @@ public class PSS {
                 scanner.nextLine();
                   // entering input for start time
                 System.out.println("Input the start time: \n");
-                int taskStartTime = scanner.nextInt();
+                float taskStartTime = scanner.nextFloat();
                 taskList.get(i).setStartTime(taskStartTime);
                 displayMenuR(i);
                 input = scanner.nextInt();
