@@ -7,6 +7,7 @@ public class PSS {
 
     public static void main(String[] args){
         createTask(); 
+        findTask();
     }
 
     public static void createTask(){
@@ -63,6 +64,15 @@ public class PSS {
         }     
 
         scanner.close(); 
+    }
+
+
+    public void findTask() {
+        for (Task element : taskList){
+            if (element.contains(taskName)) {
+                  System.out.println(element);
+            }
+         }
     }
 
 }
