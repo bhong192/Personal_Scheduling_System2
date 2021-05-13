@@ -10,17 +10,16 @@ public class PSS {
         Scanner scanner = new Scanner(System.in); 
         int input;
         String taskName;
-        
-        scanner.nextLine();
     
         displayMenu();
         input = scanner.nextInt();
+        scanner.nextLine();
         
         while(input != 7){
 
             if(input == 1){
                 // clear buffer or else code breaks
-                scanner.nextLine();
+                //scanner.nextLine();
                 createTask(scanner);
                 displayMenu();
                 input = scanner.nextInt();
@@ -28,7 +27,7 @@ public class PSS {
             else if(input == 2){
                 System.out.println("Enter task's name: ");
                 // clear buffer or else code breaks
-                scanner.nextLine();
+               // scanner.nextLine();
                 taskName = scanner.nextLine();
                 findTask(taskName);
                 displayMenu();
@@ -37,7 +36,7 @@ public class PSS {
             else if(input == 3){
                 // clear buffer or else code breaks
                 System.out.println("Enter task's name: ");
-                scanner.nextLine();
+               // scanner.nextLine();
                 taskName = scanner.nextLine();
                 deleteTask(taskName);
                 displayMenu();
@@ -46,7 +45,7 @@ public class PSS {
             else if(input == 4){
                 // clear buffer or else code breaks
                 System.out.println("Enter task's name: ");
-                scanner.nextLine();
+               // scanner.nextLine();
                 taskName = scanner.nextLine();
                 editTask(taskName, scanner);
                 displayMenu();
@@ -113,7 +112,7 @@ public class PSS {
             
             float taskDuration = scanner.nextFloat(); 
             
-            while(taskDuration > 23.75 || taskDuration < 0.25){
+            while(taskDuration > 23.75 || taskDuration < 0.25 || taskDuration % (.25) != 0){
                 System.out.println("Invalid duration. Please input a valid duration between 0.25 and 23.75"); 
                 taskDuration = scanner.nextFloat(); 
             }
@@ -461,7 +460,7 @@ public class PSS {
         
                 float taskDuration = scanner.nextFloat(); 
                 
-                while(taskDuration > 23.75 || taskDuration < 0.25){
+                while(taskDuration > 23.75 || taskDuration < 0.25 || taskDuration % (.25) != 0){
                     System.out.println("Invalid duration. Please input a valid duration between 0.25 and 23.75"); 
                     taskDuration = scanner.nextFloat(); 
                 }
