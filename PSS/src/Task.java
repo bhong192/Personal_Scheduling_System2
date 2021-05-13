@@ -6,6 +6,7 @@ public class Task{
     private float startTime;
     private float duration;
     private String endDate;
+    private String category;
 
     public Task(){
 
@@ -59,6 +60,17 @@ public class Task{
     }
     public void setEndDate(String endDate){
         this.endDate = endDate; 
+    }
+    public int getFrequency(){
+
+    }
+    public void setFrequency(int frequency){}
+    public void setCategory(String category){
+        this.category = category;
+    }
+
+    public String getCategory(){
+        return category;
     }
 
 }

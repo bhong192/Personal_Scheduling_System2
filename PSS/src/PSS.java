@@ -1,3 +1,4 @@
+import java.lang.ProcessBuilder.Redirect.Type;
 import java.util.*;
 import org.json.simple.*; 
 
@@ -7,11 +8,66 @@ public class PSS {
 
     public static void main(String[] args){
         Scanner scanner = new Scanner(System.in); 
-        createTask(scanner);
-        createTask(scanner);  
-        scanner.close(); 
+        int input;
+        String taskName;
+        
+        scanner.nextLine();
+    
+        displayMenu();
+        input = scanner.nextInt();
+        
+        while(input != 7){
+
+            if(input == 1){
+                // clear buffer or else code breaks
+                scanner.nextLine();
+                createTask(scanner);
+                displayMenu();
+                input = scanner.nextInt();
+            }
+            else if(input == 2){
+                System.out.println("Enter task's name: ");
+                // clear buffer or else code breaks
+                scanner.nextLine();
+                taskName = scanner.nextLine();
+                findTask(taskName);
+                displayMenu();
+                input = scanner.nextInt();
+            }
+            else if(input == 3){
+                // clear buffer or else code breaks
+                System.out.println("Enter task's name: ");
+                scanner.nextLine();
+                taskName = scanner.nextLine();
+                deleteTask(taskName);
+                displayMenu();
+                input = scanner.nextInt();
+            }
+            else if(input == 4){
+                // clear buffer or else code breaks
+                System.out.println("Enter task's name: ");
+                scanner.nextLine();
+                taskName = scanner.nextLine();
+                editTask(taskName, scanner);
+                displayMenu();
+                input = scanner.nextInt();
+            }
+        }
+        scanner.nextLine();
+        scanner.close();
     }
     
+    public static void displayMenu(){
+        System.out.println("-----------------------------");
+        System.out.println("1 - Enter 1 to create Task: ");
+        System.out.println("2 - Enter 2 to view Task: ");
+        System.out.println("3 - Enter 3 to delete Task: ");
+        System.out.println("4 - Enter 4 to edit Task: ");
+        System.out.println("5 - Enter 5 to write Task: ");
+        System.out.println("6 - Enter 6 to read Task: ");
+        System.out.println("7 - exit");
+        System.out.println("-----------------------------");
+    }
     public static void createTask(Scanner scanner){
         // for reading user input
 
@@ -48,6 +104,11 @@ public class PSS {
             String taskStartDate = scanner.nextLine(); 
             // check if start date is valid
             verifyDate(taskStartDate, scanner);
+
+            // entering input for start time
+            System.out.println("Input the start time: \n");
+            int taskStartTime = scanner.nextInt();
+
             
             System.out.println("Input the duration: \n");
             
@@ -71,9 +132,10 @@ public class PSS {
             newTask.setType(taskType); 
             newTask.setStartDate(taskStartDate);
             newTask.setDuration(taskDuration);
-            //newTask.setEndDate(taskEndDate);
+            newTask.setEndDate(taskEndDate);
             newTask.setFrequency(taskFreq); 
-            
+            newTask.setCategory(taskCategory);
+            newTask.setStartTime(taskStartTime);
             taskList.add(newTask); 
 
         }
@@ -102,7 +164,7 @@ public class PSS {
             newTask.setStartDate(taskStartDate);
             newTask.setDuration(taskDuration);
             newTask.setEndDate(taskEndDate);
-            
+            newTask.setCategory(taskCategory);
             taskList.add(newTask); 
         } 
         else{
@@ -211,14 +273,266 @@ public class PSS {
                 }
             }
     }
+    public void verifyDuration(){
+
+    }
     public static void verifyCollision(float taskDuration, String taskStartDate, float taskStartTime, Scanner scanner){
         for(int i = 0; i < taskList.size(); i++){
-            if(taskList.get(i).getStartDate() == taskStartDate){
+            if(taskList.get(i).getStartDate() == taskStartDate ){
                 if(taskStartTime > taskList.get(i).getStartTime() && (taskList.get(i).getStartTime() + taskList.get(i).getDuration()) > taskStartTime){
                     System.out.println("Invalid time. Re-enter a new time");
                 }
             }
         }
+    }
+    public void sorting(){
+        ArrayList<Task> a = new ArrayList<>();
+    }
+    public static void editTask(String taskName, Scanner scanner){
+        findTask(taskName);
+        
+        for(int i = 0; i < taskList.size(); i++){
+            if(taskList.get(i).getName().equals(taskName)){
+                
+                if(taskList.get(i).getCategory().equalsIgnoreCase("Recurring") || taskList.get(i).getCategory().equalsIgnoreCase("recurring")){
+                    menuR(i, scanner);
+                }
+                else{
+                    menuT(i, scanner);
+                }
+            }
+        }
+
+    }
+    public static void displayMenuT(int i){
+        System.out.println("-----------------------------");
+        System.out.println("Enter correspond number to edit");
+        System.out.println("1 - Name: " + taskList.get(i).getName());
+        System.out.println("2 - Type: " + taskList.get(i).getType());
+        System.out.println("3 - Start date: " + taskList.get(i).getStartDate());
+        System.out.println("4 - Start time: " + taskList.get(i).getStartTime());
+        System.out.println("5 - Duration: " + taskList.get(i).getDuration());
+        System.out.println("6 - Exit to main")
+        System.out.println("-----------------------------");
+    }
+    public static void menuT(int i, Scanner scanner){
+        displayMenuT(i);
+        int input = scanner.nextInt();
+
+        while(input != 6){
+
+            if(input == 1){
+                scanner.nextLine();
+                System.out.println("Input the name of your task: \n"); 
+                String taskName = scanner.nextLine(); 
+                for(int j = 0; j < taskList.size(); j++ ){
+                    if(taskList.get(j).getName().equals(taskName)){
+                        System.out.println("Task name is not unique. Re-enter a new name."); 
+                        taskName = scanner.nextLine(); 
+                    }
+                }
+                taskList.get(i).setName(taskName);
+                displayMenuT(i);
+                input = scanner.nextInt();
+            }
+            else if(input == 2){
+                scanner.nextLine();
+                String[] validTypes = {"Class", "Study", "Sleep", "Exercise", "Work", "Meal"}; 
+                System.out.println("Input the type of the task: \n");
+                String taskType = scanner.nextLine();  
+        
+                // check if taskType is valid 
+                while(!(Arrays.asList(validTypes).contains(taskType))){
+                        System.out.println("Invalid task type! Input a new task type. \n");
+                        taskType = scanner.nextLine();                
+                }
+                taskList.get(i).setType(taskType);
+                displayMenuT(i);
+                input = scanner.nextInt();
+        
+            }
+            else if(input == 3){
+                scanner.nextLine();
+                System.out.println("Input the start date: \n"); 
+                String taskStartDate = scanner.nextLine(); 
+                // check if start date is valid
+                verifyDate(taskStartDate, scanner);
+                taskList.get(i).setStartDate(taskStartDate);
+                displayMenuT(i);
+                input = scanner.nextInt();
+            }
+            else if(input == 4){
+                scanner.nextLine();
+                  // entering input for start time
+                System.out.println("Input the start time: \n");
+                int taskStartTime = scanner.nextInt();
+                taskList.get(i).setStartTime(taskStartTime);
+                displayMenuT(i);
+                input = scanner.nextInt();
+            }
+            else if(input == 5){
+                scanner.nextLine();
+                System.out.println("Input the duration: \n");
+        
+                float taskDuration = scanner.nextFloat(); 
+                
+                while(taskDuration > 23.75 || taskDuration < 0.25){
+                    System.out.println("Invalid duration. Please input a valid duration between 0.25 and 23.75"); 
+                    taskDuration = scanner.nextFloat(); 
+                }
+                taskList.get(i).setDuration(taskDuration);
+                displayMenuT(i);
+                input = scanner.nextInt();
+            }
+        }
+    }
+    public static void displayMenuR(int i){
+        System.out.println("-----------------------------");
+        System.out.println("Enter correspond number to edit");
+        System.out.println("1 - Name: " + taskList.get(i).getName());
+        System.out.println("2 - Type: " + taskList.get(i).getType());
+        System.out.println("3 - Start date: " + taskList.get(i).getStartDate());
+        System.out.println("4 - Start time: " + taskList.get(i).getStartTime());
+        System.out.println("5 - Duration: " + taskList.get(i).getDuration());
+        System.out.println("6 - End date: " + taskList.get(i).getEndDate());
+        System.out.println("7 - Frequency: " + taskList.get(i).getFrequency());
+        System.out.println("8- Exit to main");
+        System.out.println("-----------------------------");
+    }
+    public static void menuR(int i, Scanner scanner){
+
+        displayMenuR(i);
+        int input = scanner.nextInt();
+
+        while(input != 8){
+
+            if(input == 1){
+                scanner.nextLine();
+                System.out.println("Input the name of your task: \n"); 
+                String taskName = scanner.nextLine(); 
+                for(int j = 0; j < taskList.size(); j++ ){
+                    if(taskList.get(j).getName().equals(taskName)){
+                        System.out.println("Task name is not unique. Re-enter a new name."); 
+                        taskName = scanner.nextLine(); 
+                    }
+                }
+                taskList.get(i).setName(taskName);
+                displayMenuR(i);
+                input = scanner.nextInt();
+                
+            }
+            else if(input == 2){
+                scanner.nextLine();
+                String[] validTypes = {"Class", "Study", "Sleep", "Exercise", "Work", "Meal"}; 
+                System.out.println("Input the type of the task: \n");
+                String taskType = scanner.nextLine();  
+        
+                // check if taskType is valid 
+                while(!(Arrays.asList(validTypes).contains(taskType))){
+                        System.out.println("Invalid task type! Input a new task type. \n");
+                        taskType = scanner.nextLine();                
+                }
+                taskList.get(i).setType(taskType);
+                displayMenuR(i);
+                input = scanner.nextInt();
+        
+            }
+            else if(input == 3){
+                scanner.nextLine();
+                System.out.println("Input the start date: \n"); 
+                String taskStartDate = scanner.nextLine(); 
+                // check if start date is valid
+                verifyDate(taskStartDate, scanner);
+                taskList.get(i).setStartDate(taskStartDate);
+                displayMenuR(i);
+                input = scanner.nextInt();
+            }
+            else if(input == 4){
+                scanner.nextLine();
+                  // entering input for start time
+                System.out.println("Input the start time: \n");
+                int taskStartTime = scanner.nextInt();
+                taskList.get(i).setStartTime(taskStartTime);
+                displayMenuR(i);
+                input = scanner.nextInt();
+            }
+            else if(input == 5){
+                scanner.nextLine();
+                System.out.println("Input the duration: \n");
+        
+                float taskDuration = scanner.nextFloat(); 
+                
+                while(taskDuration > 23.75 || taskDuration < 0.25){
+                    System.out.println("Invalid duration. Please input a valid duration between 0.25 and 23.75"); 
+                    taskDuration = scanner.nextFloat(); 
+                }
+                taskList.get(i).setDuration(taskDuration);
+                displayMenuR(i);
+                input = scanner.nextInt();
+
+            }
+            else if(input == 6){
+                scanner.nextLine(); 
+                System.out.println("Input the end date: \n");
+                String taskEndDate  = scanner.nextLine(); 
+                verifyDate(taskEndDate, scanner);
+                taskList.get(i).setEndDate(taskEndDate);
+                displayMenuR(i);
+                input = scanner.nextInt();
+            }
+            else if(input == 7){
+                scanner.nextLine();
+                System.out.println("Input the frequency: \n"); 
+                int taskFreq = scanner.nextInt(); 
+                scanner.nextLine(); 
+                taskList.get(i).setFrequency(taskFreq);
+                displayMenuR(i);
+                input = scanner.nextInt();
+            }
+        }
+    }
+    public static void findTask(String taskName) {
+        for(int i = 0; i < taskList.size(); i++){
+            if(taskName.equals(taskList.get(i).getName())){
+                System.out.println("-----------------------------");
+                display(i);
+            }
+            else {
+                System.out.println("Task not found");
+            }
+        }
+    }
+
+    public static void deleteTask(String taskName){
+        for(int i = 0; i < taskList.size(); i++){
+            if(taskName.equals(taskList.get(i).getName())){
+                taskList.remove(i);
+                System.out.println("Successful deletion");
+            }
+            else{
+                System.out.println("Invalid Name");
+            }
+        }
+    }
+
+    public static void display(int i){
+        if(taskList.get(i).getCategory().equalsIgnoreCase("Recurring") || taskList.get(i).getCategory().equalsIgnoreCase("recurring")){
+            System.out.println("Name: " + taskList.get(i).getName());
+            System.out.println("Type: " + taskList.get(i).getType());
+            System.out.println("Start date: " + taskList.get(i).getStartDate());
+            System.out.println("Start time: " + taskList.get(i).getStartTime());
+            System.out.println("Duration: " + taskList.get(i).getDuration());
+            System.out.println("End date: " + taskList.get(i).getEndDate());
+            System.out.println("Frequency: " + taskList.get(i).getFrequency());
+        }
+        else {
+            System.out.println("Name: " + taskList.get(i).getName());
+            System.out.println("Type: " + taskList.get(i).getType());
+            System.out.println("Start date: " + taskList.get(i).getStartDate());
+            System.out.println("Start time: " + taskList.get(i).getStartTime());
+            System.out.println("Duration: " + taskList.get(i).getDuration());
+        }
+            
     }
 }
 
