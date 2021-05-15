@@ -13,7 +13,7 @@ public class PSS {
     
         displayMenu();
         input = scanner.nextInt();
-   
+        
         
         while(input != 7){
 
@@ -31,7 +31,6 @@ public class PSS {
                 taskName = scanner.next();
                 findTask(taskName);
                 displayMenu();
-                
                 input = scanner.nextInt();
             }
             else if(input == 3){
@@ -71,7 +70,7 @@ public class PSS {
         // for reading user input
 
 
-        System.out.println("Type of task? (Recurring/Transient)"); 
+        System.out.println("Type of task? (Recurring/Transient/Anti-Task)"); 
         String taskCategory = scanner.nextLine(); 
 
         if(taskCategory.equalsIgnoreCase("Recurring") || taskCategory.equalsIgnoreCase("recurring")){
@@ -88,7 +87,7 @@ public class PSS {
             }
 
 
-            
+
             String[] validTypes = {"Class", "Study", "Sleep", "Exercise", "Work", "Meal"}; 
             System.out.println("Input the type of the task: \n");
             String taskType = scanner.nextLine();  
@@ -149,21 +148,27 @@ public class PSS {
 
         }
         
-        else if(taskCategory.equalsIgnoreCase("Transient") || taskCategory.equalsIgnoreCase("transient")){
+        // Transient task and anti-task have the same attributes, so we will just create anti-tasks as transient under the hood but with
+        // specifying the type as "cancellation"
+        else if(taskCategory.equalsIgnoreCase("Transient") || taskCategory.equalsIgnoreCase("transient") || taskCategory.equalsIgnoreCase("Anti-task") || 
+        taskCategory.equalsIgnoreCase("anti-task")){
 
             TransientTask newTask = new TransientTask();
 
             System.out.println("Input the name of your task: \n"); 
             String taskName = scanner.nextLine(); 
+
             for(int i = 0; i < taskList.size(); i++ ){
-                if(taskList.get(i).getName().equals(taskName)){
+                if(taskList.get(i).getName().equals(taskName) && !(taskCategory.equalsIgnoreCase("anti-task"))){
                     System.out.println("Task name is not unique. Re-enter a new name."); 
                     taskName = scanner.nextLine(); 
                 }
             }
             
-
-            String[] validTypes = {"Visit", "Shopping", "Appointment"}; 
+            if(taskCategory.equalsIgnoreCase("Anti-task")){
+                
+            }
+            String[] validTypes = {"Visit", "Shopping", "Appointment", "Cancellation"}; 
             System.out.println("Input the type of the task: ");
             String taskType = scanner.nextLine();  
 
@@ -199,7 +204,31 @@ public class PSS {
             newTask.setStartTime(taskStartTime);
             newTask.setDuration(taskDuration);
             newTask.setCategory(taskCategory);
-            taskList.add(newTask); 
+            
+            if (newTask.getType().equalsIgnoreCase("Cancellation") || newTask.getType().equalsIgnoreCase("cancellation")){
+                
+                for(int i = 0; i < taskList.size(); i++){
+                    if( (taskName.equals(taskList.get(i).getName())) && (taskStartTime.equals(taskList.get(i).getStartTime())) && (taskStartDate.equals(taskList.get(i).getStartDate()) )){
+
+                        if(taskList.get(i).getCategory().equals("Recurring") || taskList.get(i).getCategory().equals("recurring")){
+                            deleteTask(taskList.get(i).getName()); 
+                        }
+                        
+                        else{
+                            System.out.println("The task attempted to be deleted is not of type recurring"); 
+                        }
+
+                    }
+                    else {
+                        System.out.println("No matching instance of a task was found"); 
+                    }
+                }
+            }
+
+            if(!(newTask.getType().equalsIgnoreCase("Cancellation") || newTask.getType().equalsIgnoreCase("cancellation"))){
+                taskList.add(newTask); 
+            }
+        
         } 
         else{
             System.out.println("Not a valid task type!"); 
@@ -357,7 +386,7 @@ public class PSS {
         System.out.println("3 - Start date: " + taskList.get(i).getStartDate());
         System.out.println("4 - Start time: " + taskList.get(i).getStartTime());
         System.out.println("5 - Duration: " + taskList.get(i).getDuration());
-        System.out.println("6 - Exit to main")
+        System.out.println("6 - Exit to main");
         System.out.println("-----------------------------");
     }
     public static void menuT(int i, Scanner scanner){
@@ -542,6 +571,7 @@ public class PSS {
                 System.out.println("-----------------------------");
                 display(i);
             }
+            // not printing this after searching for a deleted task
             else {
                 System.out.println("Task not found");
             }
@@ -570,7 +600,7 @@ public class PSS {
             System.out.println("End date: " + taskList.get(i).getEndDate());
             System.out.println("Frequency: " + taskList.get(i).getFrequency());
         }
-        else {
+        else if (taskList.get(i).getCategory().equalsIgnoreCase("Transient") || taskList.get(i).getCategory().equalsIgnoreCase("transient")) {
             System.out.println("Name: " + taskList.get(i).getName());
             System.out.println("Type: " + taskList.get(i).getType());
             System.out.println("Start date: " + taskList.get(i).getStartDate());
