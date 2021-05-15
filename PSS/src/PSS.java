@@ -146,6 +146,7 @@ public class PSS {
             newTask.setStartTime(taskStartTime);
             taskList.add(newTask); 
 
+
         }
         
         // Transient task and anti-task have the same attributes, so we will just create anti-tasks as transient under the hood but with
@@ -237,11 +238,69 @@ public class PSS {
 
     }
 
+    public static void createRecurringDaily(RecurringTask recurringTask){
+
+        String startMonth = recurringTask.getStartDate().substring(4,6); 
+        if(startMonth.substring(0).equals("0")){
+            startMonth = recurringTask.getStartDate().substring(5,6); 
+        } 
+        int startMonthInt = Integer.parseInt(startMonth);
+
+        String startDate = recurringTask.getStartDate().substring(6,8); 
+        if(startDate.substring(0).equals("0")){
+            startDate = recurringTask.getStartDate().substring(7,8);
+        }
+        int startDateInt = Integer.parseInt(startDate);
+
+        String endMonth = recurringTask.getEndDate().substring(4,6); 
+        if(endMonth.substring(0).equals("0")){
+            endMonth = recurringTask.getEndDate().substring(5,6); 
+        } 
+        int endMonthInt = Integer.parseInt(endMonth); 
+
+        String endDate = recurringTask.getEndDate().substring(6,8); 
+        if(endDate.substring(0).equals("0")){
+            endDate = recurringTask.getEndDate().substring(7,8);
+        }
+        int endDateInt = Integer.parseInt(endDate);
+
+        
+        if(endMonthInt == startMonthInt){
+            int count = endDateInt - startDateInt;     
+        }
+
+        else{
+            if(startMonthInt == 1 || startMonthInt == 3 || startMonthInt == 5 || startMonthInt == 7 || startMonthInt == 8 || startMonthInt == 10 || startMonthInt == 12){
+                int times = 31 - startDateInt;  
+                times += endDateInt; 
+
+
+            }
+
+            else if (startMonthInt == 4 || startMonthInt == 6 || startMonthInt == 9 || startMonthInt ==11){
+                int times = 30 - startDateInt; 
+            }
+
+            // February
+            else if (startMonthInt == 2){
+                int times = 28 - startDateInt; 
+            }
+
+            
+            
+
+        }
+         
+
+
+
+    }
+
     public static void verifyDate(String taskStartDate, Scanner scanner){
             //Scanner scanner2 = new Scanner(System.in);
             // check if start date is valid
             // 20200415
-            String month = taskStartDate.substring(4,5);
+            String month = taskStartDate.substring(4,6);
             if(month.substring(0).equals("0")){
                 month = taskStartDate.substring(5,6); 
             } 
