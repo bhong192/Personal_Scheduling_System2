@@ -58,6 +58,13 @@ public class Task{
     public String getEndDate(){
         return this.endDate;
     }
+
+    public int getFrequency(){
+        
+    }
+    public void setFrequency(int freq){
+        
+    }
     public void setEndDate(String endDate){
         this.endDate = endDate; 
     }
