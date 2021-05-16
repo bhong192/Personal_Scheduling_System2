@@ -409,7 +409,7 @@ public class PSS {
     public static void verifyCollision(Float taskDuration, String taskStartDate, float taskStartTime, Scanner scanner){
         for(int i = 0; i < taskList.size(); i++){
             if(taskList.get(i).getStartDate().equals(taskStartDate) && (taskList.get(i).getStartTime() + taskList.get(i).getDuration()) > taskStartTime){
-                while((taskStartTime + taskDuration) > taskList.get(i).getStartTime() && (taskList.get(i).getStartTime() + taskList.get(i).getDuration) > (taskDuration + taskStartTime)){
+                while((taskStartTime + taskDuration) > taskList.get(i).getStartTime() && (taskList.get(i).getStartTime() + taskList.get(i).getDuration()) > (taskDuration + taskStartTime) && (taskStartTime < taskList.get(i).getStartTime()) && (taskStartTime + taskDuration) > taskList.get(i).getDuration() + taskList.get(i).getStartTime()){
                     System.out.println("Invalid time. Re-enter a new duration.");
                     taskStartTime = scanner.nextFloat();
                 }
