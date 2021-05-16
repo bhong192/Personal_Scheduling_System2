@@ -51,6 +51,9 @@ public class PSS {
                 displayMenu();
                 input = scanner.nextInt();
             }
+            else if(input ==5){
+                
+            }
         }
         scanner.close();
     }
@@ -135,7 +138,6 @@ public class PSS {
             System.out.println("Input the frequency: \n"); 
             int taskFreq = scanner.nextInt();  
             
-            
             newTask.setName(taskName); 
             newTask.setType(taskType); 
             newTask.setStartDate(taskStartDate);
@@ -144,8 +146,12 @@ public class PSS {
             newTask.setFrequency(taskFreq); 
             newTask.setCategory(taskCategory);
             newTask.setStartTime(taskStartTime);
-            taskList.add(newTask); 
-
+            if(taskFreq == 1){
+                createRecurringDaily(newTask);
+            }
+            else {
+                createRecurringWeekly(newTask);
+            }
 
         }
         
@@ -239,8 +245,12 @@ public class PSS {
     }
 
     public static void createRecurringDaily(RecurringTask recurringTask){
+        
+        // storing days in the month
+        int daysMonth = 0;
 
         String startMonth = recurringTask.getStartDate().substring(4,6); 
+        int times = 0;
         if(startMonth.substring(0).equals("0")){
             startMonth = recurringTask.getStartDate().substring(5,6); 
         } 
@@ -266,35 +276,211 @@ public class PSS {
 
         
         if(endMonthInt == startMonthInt){
-            int count = endDateInt - startDateInt;     
+            times = endDateInt - startDateInt;     
         }
 
         else{
             if(startMonthInt == 1 || startMonthInt == 3 || startMonthInt == 5 || startMonthInt == 7 || startMonthInt == 8 || startMonthInt == 10 || startMonthInt == 12){
-                int times = 31 - startDateInt;  
+                times = 31 - startDateInt;  
                 times += endDateInt; 
-
-
+                daysMonth = 31;
             }
 
             else if (startMonthInt == 4 || startMonthInt == 6 || startMonthInt == 9 || startMonthInt ==11){
-                int times = 30 - startDateInt; 
+                 times = 30 - startDateInt; 
+                 times += endDateInt; 
+                 daysMonth = 30;
             }
 
             // February
             else if (startMonthInt == 2){
-                int times = 28 - startDateInt; 
+                times = 28 - startDateInt; 
+                times += endDateInt; 
+                daysMonth = 28;
             }
-
-            
-            
-
         }
-         
 
-
+        createRecurringD(times, recurringTask, daysMonth);
 
     }
+    public static void createRecurringD(int times, RecurringTask recurringTask, int daysMonth){
+        String dateFormat = "";
+        // combining the rest of the month 
+        String combine = "";
+        
+        // fetch the dates and increment to the date
+        String startDate = recurringTask.getStartDate().substring(6,8); 
+        if(startDate.substring(0).equals("0")){
+            startDate = recurringTask.getStartDate().substring(7,8);
+        }
+        int startDateInt = Integer.parseInt(startDate);
+
+        String startMonth = recurringTask.getStartDate().substring(4,6); 
+        if(startMonth.substring(0).equals("0")){
+            startMonth = recurringTask.getStartDate().substring(5,6); 
+        } 
+        int startMonthInt = Integer.parseInt(startMonth);
+
+        String endMonth = recurringTask.getEndDate().substring(4,6);
+        if(endMonth.substring(0).equals("0")){
+            endMonth = recurringTask.getStartDate().substring(5,6); 
+        } 
+        int endMonthInt = Integer.parseInt(endMonth);
+        
+         
+        for(int i = 0; i <= times; i++){
+            if( i == 0){
+
+            }
+            else if(startMonthInt == endMonthInt){
+                startDateInt = startDateInt + 1;
+            }
+            else if(startDateInt == daysMonth){
+               startDateInt = 0;
+               startDateInt = startDateInt + 1;
+               startMonthInt += 1;
+               startMonth = String.valueOf(startMonthInt);
+            }
+            else {
+                startDateInt = startDateInt + 1;
+            }
+            
+            if(startDateInt < 10){
+                dateFormat = "0" + String.valueOf(startDateInt);
+            }
+            else {
+                dateFormat = String.valueOf(startDateInt);
+            }
+            combine = recurringTask.getStartDate().substring(0,4) + startMonth + dateFormat;
+            RecurringTask newTask = new RecurringTask();
+            newTask.setCategory(recurringTask.getCategory());
+            newTask.setName(recurringTask.getName());
+            newTask.setDuration(recurringTask.getDuration());
+            newTask.setType(recurringTask.getType());
+            newTask.setStartTime(recurringTask.getStartTime());
+            newTask.setStartDate(combine);
+            taskList.add(newTask);
+        }
+    }
+
+    public static void createRecurringWeekly(RecurringTask recurringTask){
+                // storing days in the month
+                int daysMonth = 0;
+                int times = 0;
+                String startMonth = recurringTask.getStartDate().substring(4,6); 
+                if(startMonth.substring(0).equals("0")){
+                    startMonth = recurringTask.getStartDate().substring(5,6); 
+                } 
+                int startMonthInt = Integer.parseInt(startMonth);
+        
+                String startDate = recurringTask.getStartDate().substring(6,8); 
+                if(startDate.substring(0).equals("0")){
+                    startDate = recurringTask.getStartDate().substring(7,8);
+                }
+                int startDateInt = Integer.parseInt(startDate);
+        
+                String endMonth = recurringTask.getEndDate().substring(4,6); 
+                if(endMonth.substring(0).equals("0")){
+                    endMonth = recurringTask.getEndDate().substring(5,6); 
+                } 
+                int endMonthInt = Integer.parseInt(endMonth); 
+        
+                String endDate = recurringTask.getEndDate().substring(6,8); 
+                if(endDate.substring(0).equals("0")){
+                    endDate = recurringTask.getEndDate().substring(7,8);
+                }
+                int endDateInt = Integer.parseInt(endDate);
+                if(startMonthInt == 1 || startMonthInt == 3 || startMonthInt == 5 || startMonthInt == 7 || startMonthInt == 8 || startMonthInt == 10 || startMonthInt == 12){
+                    daysMonth = 31;
+                    times = 31 - startDateInt;  
+                    times += endDateInt;    
+        
+                }
+        
+                else if (startMonthInt == 4 || startMonthInt == 6 || startMonthInt == 9 || startMonthInt ==11){
+                    daysMonth = 30;
+                    times = 30 - startDateInt;  
+                    times += endDateInt;  
+                }
+        
+                // February
+                else if (startMonthInt == 2){
+                    daysMonth = 28;
+                    times = 28 - startDateInt;  
+                    times += endDateInt;  
+                }
+
+                
+                createRecurringW(times, recurringTask, daysMonth);
+    }
+    public static void createRecurringW(int times, RecurringTask recurringTask, int daysMonth){
+        int count = 0; 
+        String combine = " ";
+        int temp = 0;
+        String dateFormat = "";
+
+        // fetch the dates and increment to the date
+         String startDate = recurringTask.getStartDate().substring(6,8); 
+         if(startDate.substring(0).equals("0")){
+             startDate = recurringTask.getStartDate().substring(7,8);
+         }
+         int startDateInt = Integer.parseInt(startDate);
+ 
+         String startMonth = recurringTask.getStartDate().substring(4,6); 
+         if(startMonth.substring(0).equals("0")){
+             startMonth = recurringTask.getStartDate().substring(5,6); 
+         } 
+         int startMonthInt = Integer.parseInt(startMonth);
+ 
+         String endDateMonth = recurringTask.getEndDate().substring(6,8);
+         if(endDateMonth.substring(0).equals("0")){
+             endDateMonth = recurringTask.getStartDate().substring(7,8); 
+         } 
+         int endDateInt = Integer.parseInt(endDateMonth);
+
+        String endMonth = recurringTask.getEndDate().substring(4,6); 
+         if(endMonth.substring(0).equals("0")){
+             endMonth = recurringTask.getStartDate().substring(5,6); 
+         } 
+         int endMonthInt = Integer.parseInt(endMonth);
+         
+         // checking how many days in month to mod to get how many more days till we add
+        
+         // bad conditon
+         while(count < times){
+            startDateInt += 7; 
+            if(startDateInt > daysMonth){
+                startDateInt = startDateInt % daysMonth;
+                startMonthInt += 1;
+                startMonth = String.valueOf(startMonthInt);
+                count += 7;
+             }
+             else {
+                 count += 7;
+             }
+                        
+            if(startDateInt < 10){
+                dateFormat = "0" + String.valueOf(startDateInt);
+            }
+            else if(startMonthInt == endMonthInt && startDateInt > endDateInt){
+                break;
+            }
+            else{
+                dateFormat = String.valueOf(startDateInt);
+            }
+            
+             combine = recurringTask.getStartDate().substring(0,4) + startMonth + dateFormat;
+             RecurringTask newTask = new RecurringTask();
+             newTask.setCategory(recurringTask.getCategory());
+             newTask.setName(recurringTask.getName());
+             newTask.setDuration(recurringTask.getDuration());
+             newTask.setType(recurringTask.getType());
+             newTask.setStartTime(recurringTask.getStartTime());
+             newTask.setStartDate(combine);
+             taskList.add(newTask);
+         }
+    }
+
 
     public static void verifyDate(String taskStartDate, Scanner scanner){
             //Scanner scanner2 = new Scanner(System.in);
@@ -408,11 +594,18 @@ public class PSS {
 
     public static void verifyCollision(Float taskDuration, String taskStartDate, float taskStartTime, Scanner scanner){
         for(int i = 0; i < taskList.size(); i++){
-            if(taskList.get(i).getStartDate().equals(taskStartDate) && (taskList.get(i).getStartTime() + taskList.get(i).getDuration()) > taskStartTime){
-                while((taskStartTime + taskDuration) > taskList.get(i).getStartTime() && (taskList.get(i).getStartTime() + taskList.get(i).getDuration()) > (taskDuration + taskStartTime) && (taskStartTime < taskList.get(i).getStartTime()) && (taskStartTime + taskDuration) > taskList.get(i).getDuration() + taskList.get(i).getStartTime()){
-                    System.out.println("Invalid time. Re-enter a new duration.");
-                    taskStartTime = scanner.nextFloat();
-                }
+            // && (taskList.get(i).getStartTime() + taskList.get(i).getDuration()) > taskStartTime
+            if(taskList.get(i).getStartDate().equals(taskStartDate)){
+                if(taskStartTime + taskDuration> taskList.get(i).getStartTime())
+                    if((taskList.get(i).getStartTime() + taskList.get(i).getDuration()) > (taskDuration + taskStartTime))
+                        if(taskStartTime < taskList.get(i).getStartTime())
+                            if((taskStartTime + taskDuration) >= (taskList.get(i).getDuration() + taskList.get(i).getStartTime())){
+                                System.out.println("Invalid time. Re-enter a new duration.");
+                                taskStartTime = scanner.nextFloat();
+                            }
+                //while((taskStartTime + taskDuration) > taskList.get(i).getStartTime() && (taskList.get(i).getStartTime() + taskList.get(i).getDuration()) > (taskDuration + taskStartTime) && (taskStartTime < taskList.get(i).getStartTime()) && (taskStartTime + taskDuration) >= (taskList.get(i).getDuration() + taskList.get(i).getStartTime())){
+                   
+               // }
             }
         }
     }
