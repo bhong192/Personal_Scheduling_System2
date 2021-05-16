@@ -1,6 +1,10 @@
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect.Type;
 import java.util.*;
-import org.json.simple.*; 
+import org.json.simple.*;
+import org.json.simple.parser.*;
 
 public class PSS {
     
@@ -82,6 +86,7 @@ public class PSS {
 
             System.out.println("Input the name of your task: \n"); 
             String taskName = scanner.nextLine(); 
+            // Check if the user-inputted name is unique
             for(int i = 0; i < taskList.size(); i++ ){
                 if(taskList.get(i).getName().equals(taskName)){
                     System.out.println("Task name is not unique. Re-enter a new name."); 
@@ -95,7 +100,7 @@ public class PSS {
             System.out.println("Input the type of the task: \n");
             String taskType = scanner.nextLine();  
 
-            // check if taskType is valid 
+            // check if taskType is valid (within the list of accepted)
             while(!(Arrays.asList(validTypes).contains(taskType))){
                     System.out.println("Invalid task type! Input a new task type. \n");
                     taskType = scanner.nextLine();                
@@ -861,5 +866,68 @@ public class PSS {
         }
             
     }
+
+    public static void readSchedule() throws IOException, ParseException{
+        
+        JSONParser parser = new JSONParser();
+
+        try{
+            Object obj = parser.parse(new FileReader("Set1.json"));
+            JSONObject jsonObject = (JSONObject)obj;
+
+            String taskName = (String)jsonObject.get("Name");
+            String taskType = (String)jsonObject.get("Type"); 
+
+            if(taskType.equalsIgnoreCase("Class") || taskType.equalsIgnoreCase("Study") || taskType.equalsIgnoreCase("Exercise") || taskType.equalsIgnoreCase("Sleep") ||
+            taskType.equalsIgnoreCase("Work") || taskType.equalsIgnoreCase("Meal")){
+
+                Object[] recurringAttributes = new Object[7];
+
+                String taskStartDate = (String)jsonObject.get("StartDate");
+                Float taskStartTime = (Float)jsonObject.get("StartTime");
+                Float taskDuration = (Float)jsonObject.get("Duration");
+                String taskEndDate = (String)jsonObject.get("EndDate");
+                
+                int freq = (int)jsonObject.get("Frequency");
+                Integer taskFrequnecy = new Integer(freq); 
+
+                recurringAttributes[0] = taskName; 
+                recurringAttributes[1] = taskType;
+                recurringAttributes[2] = taskStartDate;
+                recurringAttributes[3] = taskStartTime;
+                recurringAttributes[4] = taskEndDate;
+                recurringAttributes[5] = taskDuration;
+                recurringAttributes[6] = taskFrequnecy;
+                 
+                createTaskFromFile(recurringAttributes);
+            }
+
+            else {
+                Object[] transientAttributes = new Object[5];
+
+                String taskStartDate = (String)jsonObject.get("Date");
+                Float taskStartTime = (Float)jsonObject.get("StartTime");
+                Float taskDuration = (Float)jsonObject.get("Duration");
+
+                transientAttributes[0] = taskName; 
+                transientAttributes[1] = taskType;
+                transientAttributes[2] = taskStartDate;
+                transientAttributes[3] = taskStartTime;
+                transientAttributes[4] = taskDuration;
+
+                createTaskFromFile(transientAttributes);
+            }
+        }
+        catch(FileNotFoundException e){
+            e.printStackTrace();
+        }
+        
+    }
+
+    public static void createTaskFromFile(Object[] attributes){
+
+        
+    }
 }
+
 
