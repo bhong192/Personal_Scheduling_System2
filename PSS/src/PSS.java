@@ -58,7 +58,8 @@ public class PSS {
                 input = scanner.nextInt();
             }
             else if(input ==5){
-                
+                sorting();
+                writeSchedule();
             }
             else if(input == 6){
                 System.out.println("Enter the schedule file's name: "); 
@@ -71,7 +72,6 @@ public class PSS {
         }
         scanner.close();
     }
-    
     public static void displayMenu(){
         System.out.println("-----------------------------");
         System.out.println("1 - Enter 1 to create Task: ");
@@ -703,18 +703,14 @@ public class PSS {
         }
     }
 
-    public void sorting(){
-        ArrayList<Task> a = new ArrayList<>();
-        Collections.sort(dates, (d1, d2) -> {
-            if (d1.after(now) && d2.after(now)) {
-                return d1.compareTo(d2);
+    public static void sorting(){
+        Collections.sort(taskList, new Comparator<Task>(){
+           
+            @Override
+            public int compare(Task s1, Task s2){
+                return s1.getStartDate().compareTo(s2.getStartDate());
             }
-            if (d1.before(now) && d2.before(now)) {
-                return -d1.compareTo(d2);
-            }
-            return -d1.compareTo(d2);
-        });
-        
+        });  
         
     }
     public static void editTask(String taskName, Scanner scanner){
@@ -1080,6 +1076,66 @@ public class PSS {
         
     }
 
+    public static void writeSchedule() throws IOException, ParseException{
+        
+        JSONArray jsonArray = new JSONArray();
+        boolean found = false;
+
+        try{
+            FileWriter file = new FileWriter("E:/output.json");
+
+            for(int i = 0; i < taskList.size(); i++){
+                JSONObject jsonObj = new JSONObject();
+                if(taskList.get(i).getCategory().equalsIgnoreCase("recurring") || taskList.get(i).getCategory().equalsIgnoreCase("Recurring")){
+                    jsonObj.put("Name", taskList.get(i).getName());
+                    jsonObj.put("Type", taskList.get(i).getType());
+                    Long startDate = Long.parseLong(taskList.get(i).getStartDate());
+                    jsonObj.put("StartDate",startDate);
+                    jsonObj.put("StartTime", taskList.get(i).getStartTime());
+                    jsonObj.put("Duration", taskList.get(i).getDuration());
+                    Long endDate = Long.parseLong(taskList.get(i).getEndDate());
+                    jsonObj.put("EndDate", endDate);
+                    jsonObj.put("Frequency", taskList.get(i).getFrequency());
+                    jsonArray.add(jsonObj);
+                    file.write(jsonObj.toJSONString());
+                    
+                }
+                else if(taskList.get(i).getCategory().equalsIgnoreCase("Transient") || taskList.get(i).getCategory().equalsIgnoreCase("transient")){
+                    jsonObj.put("Name", taskList.get(i).getName());
+                    jsonObj.put("Type", taskList.get(i).getType());
+                    Long startDate = Long.parseLong(taskList.get(i).getStartDate());
+                    jsonObj.put("StartDate",startDate);
+                    jsonObj.put("StartTime", taskList.get(i).getStartTime());
+                    jsonObj.put("Duration", taskList.get(i).getDuration());
+                    jsonArray.add(jsonObj);
+                    file.write(jsonObj.toJSONString());
+                
+                }
+                /*else if(taskList.get(i).getCategory().equalsIgnoreCase("Anti-Task") || taskList.get(i).getCategory().equalsIgnoreCase("anti-task")){
+                    jsonObj.put("Name", requestList.get(i).getName());
+                    jsonObj.put("Type", requestList.get(i).getType());
+                    Long startDate = Long.parseLong(requestList.get(i).getStartDate());
+                    jsonObj.put("Date",startDate);
+                    jsonObj.put("StartTime", requestList.get(i).getStartTime());
+                    jsonObj.put("Duration", requestList.get(i).getDuration());
+                    jsonArray.add(jsonObj);
+                    file.write(jsonObj.toJSONString());
+                    
+                } */
+                else {
+                    found = true;
+                }
+            }
+            if(found){
+                System.out.println("Invalid type.");
+            }
+            file.close();
+        }catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+         }
+
+    }
 
 
                
