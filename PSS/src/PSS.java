@@ -1,11 +1,11 @@
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect.Type;
 import java.util.*;
 import org.json.simple.*;
 import org.json.simple.parser.*;
-
 import netscape.javascript.JSObject;
 
 public class PSS {
@@ -172,8 +172,7 @@ public class PSS {
         
         // Transient task and anti-task have the same attributes, so we will just create anti-tasks as transient under the hood but with
         // specifying the type as "cancellation"
-        else if(taskCategory.equalsIgnoreCase("Transient") || taskCategory.equalsIgnoreCase("transient") || taskCategory.equalsIgnoreCase("Anti-task") || 
-        taskCategory.equalsIgnoreCase("anti-task")){
+        else if(taskCategory.equalsIgnoreCase("Transient") || taskCategory.equalsIgnoreCase("transient")){
 
             TransientTask newTask = new TransientTask();
 
@@ -181,7 +180,7 @@ public class PSS {
             String taskName = scanner.nextLine(); 
 
             for(int i = 0; i < taskList.size(); i++ ){
-                if(taskList.get(i).getName().equals(taskName) && !(taskCategory.equalsIgnoreCase("anti-task"))){
+                if(taskList.get(i).getName().equals(taskName)){
                     System.out.println("Task name is not unique. Re-enter a new name."); 
                     taskName = scanner.nextLine(); 
                 }
@@ -190,7 +189,7 @@ public class PSS {
             if(taskCategory.equalsIgnoreCase("Anti-task")){
                 
             }
-            String[] validTypes = {"Visit", "Shopping", "Appointment", "Cancellation"}; 
+            String[] validTypes = {"Visit", "Shopping", "Appointment"}; 
             System.out.println("Input the type of the task: ");
             String taskType = scanner.nextLine();  
 
@@ -205,7 +204,9 @@ public class PSS {
 
             System.out.println("Input the start time: \n");
             Float taskStartTime = scanner.nextFloat();
-            verifyCollision(taskStartDate, taskStartTime, scanner);
+            if(!(taskType.equalsIgnoreCase("Cancellation"))){
+                verifyCollision(taskStartDate, taskStartTime, scanner);
+            }
 
             while(taskStartTime > 23.75 || taskStartTime < 0.25 || taskStartTime % (.25) != 0){
                 System.out.println("Invalid duration. Please input a valid duration between 0.25 and 23.75"); 
@@ -215,7 +216,9 @@ public class PSS {
 
             System.out.println("Input the duration: ");
             Float taskDuration = scanner.nextFloat();  
-            verifyCollision(taskDuration, taskStartDate, taskStartTime, scanner);
+            if(!(taskType.equalsIgnoreCase("Cancellation"))){
+                verifyCollision(taskDuration, taskStartDate, taskStartTime, scanner);
+            }
         
             while(taskDuration > 23.75 || taskDuration < 0.25 || taskDuration % (.25) != 0){
                 System.out.println("Invalid duration. Please input a valid duration between 0.25 and 23.75"); 
@@ -229,31 +232,84 @@ public class PSS {
             newTask.setDuration(taskDuration);
             newTask.setCategory(taskCategory);
             
-            if (newTask.getType().equalsIgnoreCase("Cancellation") || newTask.getType().equalsIgnoreCase("cancellation")){
-                
-                for(int i = 0; i < taskList.size(); i++){
-                    if( (taskName.equals(taskList.get(i).getName())) && (taskStartTime.equals(taskList.get(i).getStartTime())) && (taskStartDate.equals(taskList.get(i).getStartDate()) )){
-
-                        if(taskList.get(i).getCategory().equals("Recurring") || taskList.get(i).getCategory().equals("recurring")){
-                            deleteTask(taskList.get(i).getName()); 
-                        }
-                        
-                        else{
-                            System.out.println("The task attempted to be deleted is not of type recurring"); 
-                        }
-
-                    }
-                    else {
-                        System.out.println("No matching instance of a task was found"); 
-                    }
-                }
-            }
-
-            if(!(newTask.getType().equalsIgnoreCase("Cancellation") || newTask.getType().equalsIgnoreCase("cancellation"))){
-                taskList.add(newTask); 
-            }
+            taskList.add(newTask); 
         
         } 
+
+        else if(taskCategory.equalsIgnoreCase("Anti-Task") || taskCategory.equalsIgnoreCase("anti-task") ){
+
+            AntiTask newTask = new AntiTask(); 
+
+            System.out.println("Input the name of your task: \n"); 
+            String taskName = scanner.nextLine(); 
+
+            for(int i = 0; i < taskList.size(); i++ ){
+                if(taskList.get(i).getName().equals(taskName)){
+                    System.out.println("Task name is not unique. Re-enter a new name."); 
+                    taskName = scanner.nextLine(); 
+                }
+            }
+            
+            if(taskCategory.equalsIgnoreCase("Anti-task")){
+                
+            }
+            String[] validTypes = {"Cancellation"}; 
+            System.out.println("Input the type of the task: ");
+            String taskType = scanner.nextLine();  
+
+            while(!(Arrays.asList(validTypes).contains(taskType))){
+                System.out.println("Invalid task type! Input a new task type. \n");
+                taskType = scanner.nextLine();                
+            }
+
+            System.out.println("Input the start date: "); 
+            String taskStartDate = scanner.nextLine(); 
+            verifyDate(taskStartDate, scanner);
+
+            System.out.println("Input the start time: \n");
+            Float taskStartTime = scanner.nextFloat();
+            
+            while(taskStartTime > 23.75 || taskStartTime < 0.25 || taskStartTime % (.25) != 0){
+                System.out.println("Invalid duration. Please input a valid duration between 0.25 and 23.75"); 
+                taskStartTime= scanner.nextFloat(); 
+            }
+            
+
+            System.out.println("Input the duration: ");
+            Float taskDuration = scanner.nextFloat();  
+
+            while(taskDuration > 23.75 || taskDuration < 0.25 || taskDuration % (.25) != 0){
+                System.out.println("Invalid duration. Please input a valid duration between 0.25 and 23.75"); 
+                taskDuration = scanner.nextFloat(); 
+            }
+
+            newTask.setName(taskName); 
+            newTask.setType(taskType); 
+            newTask.setStartDate(taskStartDate);
+            newTask.setStartTime(taskStartTime);
+            newTask.setDuration(taskDuration);
+            newTask.setCategory(taskCategory);
+
+            boolean found = false; 
+            for(int i = 0; i < taskList.size(); i++){
+                if((taskStartTime.equals(taskList.get(i).getStartTime())) && (taskStartDate.equals(taskList.get(i).getStartDate()))){
+
+                    if(taskList.get(i).getCategory().equals("Recurring") || taskList.get(i).getCategory().equals("recurring")){ 
+                        taskList.remove(i);  
+                        found = true; 
+                    }
+
+                    else{
+                        System.out.println("The task attempted to be deleted is not of type recurring"); 
+                    }
+
+                }
+        }
+        if(!found){
+            System.out.println("No matching instance of a task was found."); 
+        }
+    }
+        
         else{
             System.out.println("Not a valid task type!"); 
         }     
@@ -261,6 +317,27 @@ public class PSS {
 
     }
 
+    public static void deleteAntiTask(AntiTask newTask){
+
+        boolean found = false; 
+        for(int i = 0; i < taskList.size(); i++){
+            if((newTask.getStartTime()==(taskList.get(i).getStartTime())) && (newTask.getStartDate().equals(taskList.get(i).getStartDate()))){
+
+                if(taskList.get(i).getCategory().equals("Recurring") || taskList.get(i).getCategory().equals("recurring")){ 
+                    taskList.remove(i);  
+                    found = true; 
+                }
+                
+                else{
+                    System.out.println("The task attempted to be deleted is not of type recurring"); 
+                }
+
+            }
+    }
+        if(!found){
+            System.out.println("No matching instance of a task was found."); 
+        }
+    }
     public static void createRecurringDaily(RecurringTask recurringTask){
         
         // storing days in the month
@@ -834,16 +911,17 @@ public class PSS {
         }
     }
     public static void findTask(String taskName) {
+        boolean found = false; 
         for(int i = 0; i < taskList.size(); i++){
             if(taskName.equals(taskList.get(i).getName())){
                 System.out.println("-----------------------------");
                 display(i);
-            }
-            // not printing this after searching for a deleted task
-            else {
-                System.out.println("Task not found");
+                found = true; 
             }
         }
+        if (!found){
+            System.out.println("Task not found."); 
+        } 
     }
 
     public static void deleteTask(String taskName){
@@ -890,12 +968,8 @@ public class PSS {
                 String taskName = (String) task.get("Name");
                 String taskType = (String) task.get("Type"); 
 
-                System.out.println(taskType); 
-
                 if(taskType.equalsIgnoreCase("Class") || taskType.equalsIgnoreCase("Study") || taskType.equalsIgnoreCase("Exercise") || taskType.equalsIgnoreCase("Sleep") ||
                 taskType.equalsIgnoreCase("Work") || taskType.equalsIgnoreCase("Meal")){
-
-                //Object[] recurringAttributes = new Object[7];
                 
                 // Reading each key in the JSON object and casting it to the variable types we need for validating user input
                 Long startDate = (Long)task.get("StartDate");
@@ -914,27 +988,30 @@ public class PSS {
                 
                 long freq = (long)task.get("Frequency");
                 int taskFrequency = (int)freq; 
-                //Integer taskFrequency = new Integer(freq1); 
-
-                RecurringTask newTask = new RecurringTask(taskName, taskType, taskStartDate, taskStartTime, taskDuration, taskEndDate, taskFrequency); 
-                taskList.add(newTask); 
-
-                // recurringAttributes[0] = taskName; 
-                // recurringAttributes[1] = taskType;
-                // recurringAttributes[2] = taskStartDate;
-                // recurringAttributes[3] = taskStartTime;
-                // recurringAttributes[4] = taskEndDate;
-                // recurringAttributes[5] = taskDuration;
-                // recurringAttributes[6] = taskFrequnecy;
                  
-                // createTaskFromFile(recurringAttributes);
+
+                RecurringTask newTask = new RecurringTask(); 
+                newTask.setName(taskName);
+                newTask.setType(taskType); 
+                newTask.setStartDate(taskStartDate);
+                newTask.setStartTime(taskStartTime); 
+                newTask.setDuration(taskDuration); 
+                newTask.setEndDate(taskEndDate);
+                newTask.setFrequency(taskFrequency);
+                newTask.setCategory("Recurring");
+                
+                if(taskFrequency == 1){
+                    createRecurringDaily(newTask);
+                }
+                else{
+                    createRecurringWeekly(newTask);
+                }
+                
             }
 
-            else if(taskType.equalsIgnoreCase("Visit") || taskType.equalsIgnoreCase("Shopping") || taskType.equalsIgnoreCase("Appointment") ||
-            taskType.equalsIgnoreCase("Cancellation")){
-                // Object[] transientAttributes = new Object[5];
+            else if(taskType.equalsIgnoreCase("Visit") || taskType.equalsIgnoreCase("Shopping") || taskType.equalsIgnoreCase("Appointment")){
 
-                Long startDate = (Long)task.get("StartDate");
+                Long startDate = (Long)task.get("Date");
                 String taskStartDate = String.valueOf(startDate); 
 
                 Long startTime = (Long)task.get("StartTime");
@@ -946,17 +1023,40 @@ public class PSS {
                 Float taskDuration = new Float(duration1);
                 String category = "Transient"; 
 
-                TransientTask newTask = new TransientTask(taskName, taskType, taskStartDate, taskStartTime, taskDuration, category); 
+                TransientTask newTask = new TransientTask(); 
+
+                newTask.setName(taskName);
+                newTask.setType(taskType); 
+                newTask.setStartDate(taskStartDate);
+                newTask.setStartTime(taskStartTime); 
+                newTask.setDuration(taskDuration); 
+                newTask.setCategory(category);
+
                 taskList.add(newTask); 
+             }
 
+             else if(taskType.equalsIgnoreCase("Cancellation")){
+                Long startDate = (Long)task.get("Date");
+                String taskStartDate = String.valueOf(startDate); 
 
-                // transientAttributes[0] = taskName; 
-                // transientAttributes[1] = taskType;
-                // transientAttributes[2] = taskStartDate;
-                // transientAttributes[3] = taskStartTime;
-                // transientAttributes[4] = taskDuration;
+                Long startTime = (Long)task.get("StartTime");
+                String startTime1 = String.valueOf(startTime);
+                float taskStartTime = Float.parseFloat(startTime1); 
 
-                //createTaskFromFile(transientAttributes);
+                double duration = (double)task.get("Duration");
+                float duration1  = (float) duration;
+                Float taskDuration = new Float(duration1);
+                String category = "Anti-Task"; 
+
+                AntiTask newTask = new AntiTask(); 
+
+                newTask.setName(taskName);
+                newTask.setType(taskType); 
+                newTask.setStartDate(taskStartDate);
+                newTask.setStartTime(taskStartTime); 
+                newTask.setDuration(taskDuration); 
+
+                deleteAntiTask(newTask); 
              }
              else {
                     System.out.println("Schedule invalid. There's a task with an invalid type.");
@@ -970,153 +1070,9 @@ public class PSS {
         
     }
 
-    public static void createTaskFromFile(Object[] attributes){
-
-        if(attributes.length == 7){
-
-            // check if task's name is unique 
-            for(int i = 0; i < taskList.size(); i++ ){
-                if(taskList.get(i).getName().equals(attributes[0])){
-                    System.out.println("Task name is not unique."); 
-                    return ; 
-                }
-            }
-
-            
-            // check if start date is valid 
-            String taskStartDate = String.valueOf(attributes[2]); 
-
-            String month = taskStartDate.substring(4,6);
-            if(month.substring(0).equals("0")){
-                month = taskStartDate.substring(5,6); 
-            } 
-            
-            int monthInt = Integer.parseInt(month);
-            if(monthInt > 12 || monthInt < 1){
-                return ;  
-            }
-
-            String date = taskStartDate.substring(6,8); 
-            int dateInt = Integer.parseInt(date); 
-            
-            if(monthInt == 1 || monthInt == 3 || monthInt == 5 || monthInt == 7 || monthInt == 8 || monthInt == 10 ||monthInt == 12){
-                if (dateInt > 31 || dateInt < 1){
-                    System.out.println("Invalid date."); 
-                    return ; 
-                }
-            }
-
-            else if (monthInt == 4 || monthInt == 6 || monthInt == 9 || monthInt ==11){
-                if (dateInt > 30 || dateInt < 1){
-                    System.out.println("Invalid date."); 
-                    return ;
-                }
-            }
-
-            // February
-            else if (monthInt == 2){
-                if (dateInt > 29 || dateInt < 1){
-                    System.out.println("Invalid date."); 
-                    return ;
-                }
-            }
-
-            
-            // check start time 
-            float taskStartTime = Float.parseFloat((String) attributes[3]); 
-            for(int i = 0; i < taskList.size(); i++){
-                if(taskList.get(i).getStartDate().equals(taskStartDate)){
-                    while(taskStartTime >= taskList.get(i).getStartTime() && (taskList.get(i).getStartTime() + taskList.get(i).getDuration()) > taskStartTime){
-                        System.out.println("Invalid start time. ");
-                        return ; 
-                    }
-                }
-            }
-            while(taskStartTime > 23.75 || taskStartTime < 0.25 || taskStartTime % (.25) != 0){
-                System.out.println("Invalid duration."); 
-                return ;
-            }
-
-            // check end date
-
-            String taskEndDate = (String) attributes[4];
-
-            String endmonth = taskEndDate.substring(4,5);
-            if(endmonth.substring(0).equals("0")){
-                endmonth = taskEndDate.substring(5,6); 
-            } 
-            
-            month = taskStartDate.substring(4,5);
-            if(month.substring(0).equals("0")){
-                month = taskStartDate.substring(5,6); 
-            } 
-            monthInt = Integer.parseInt(month);
-            if(monthInt > 12 || monthInt < 1){
-                System.out.println("Invalid Month."); 
-            }
-            int endmonthInt = Integer.parseInt(endmonth);
-            if(endmonthInt > 12 || endmonthInt < 1 || !(endmonthInt < monthInt)){
-                System.out.println("Invalid Month."); 
-            }
-
-            String enddate = taskStartDate.substring(6,8); 
-            int enddateInt = Integer.parseInt(enddate); 
-            
-            if(endmonthInt == 1 || endmonthInt == 3 || endmonthInt == 5 || endmonthInt == 7 || endmonthInt == 8 || endmonthInt == 10 || endmonthInt == 12){
-                if(enddateInt > 31 || enddateInt < 1){
-                    System.out.println("Invalid end date."); 
-                    return ;  
-                }
-            }
-
-            else if (endmonthInt == 4 || endmonthInt == 6 || endmonthInt == 9 || endmonthInt == 11){
-                if(enddateInt > 30 || enddateInt < 1){
-                    System.out.println("Invalid end date."); 
-                    return ; 
-                }
-            }
-
-            // February
-            else if (endmonthInt == 2){
-                if(enddateInt > 29 || enddateInt < 1){
-                    System.out.println("Invalid end date."); 
-                    return ;  
-                }
-            }
-
-             // check duration
-            Float value = (Float) attributes[4]; 
-            float taskDuration  =  value.floatValue(); 
-        
-        
-            for(int i = 0; i < taskList.size(); i++){
-                if(taskList.get(i).getStartDate().equals(taskStartDate)){
-                    if(taskDuration < taskList.get(i).getStartTime() && (taskDuration + taskStartTime) > (taskList.get(i).getDuration() + taskList.get(i).getStartTime())) {
-                        System.out.println("Invalid duration.");
-                        return ; 
-                }
-            }
-        }
-            
-            if(taskDuration > 23.75 || taskDuration < 0.25 || taskDuration % (.25) != 0){
-                System.out.println("Invalid duration."); 
-                return ; 
-            }
-
-            int taskFrequency = (int) attributes[6]; 
-            String taskName = (String) attributes[0]; 
-            String taskType = (String) attributes[1]; 
 
 
-            RecurringTask newTask = new RecurringTask(taskName, taskType, taskStartDate, taskStartTime, taskDuration, taskEndDate, taskFrequency); 
-            taskList.add(newTask);     
-    }
-        }
-
-        
-
-
-       
+               
 }
 
 
