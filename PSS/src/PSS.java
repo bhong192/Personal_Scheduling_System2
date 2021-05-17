@@ -12,7 +12,7 @@ public class PSS {
     
     public static ArrayList<Task> taskList = new ArrayList<Task>(); 
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws IOException, ParseException{
         Scanner scanner = new Scanner(System.in); 
         int input;
         String taskName;
@@ -34,7 +34,7 @@ public class PSS {
                 scanner.nextLine();
                 System.out.println("Enter task's name: ");
                 // clear buffer or else code breaks
-                taskName = scanner.next();
+                taskName = scanner.nextLine();
                 findTask(taskName);
                 displayMenu();
                 input = scanner.nextInt();
@@ -59,6 +59,14 @@ public class PSS {
             }
             else if(input ==5){
                 
+            }
+            else if(input == 6){
+                System.out.println("Enter the schedule file's name: "); 
+                scanner.nextLine(); 
+                String fileName = scanner.nextLine(); 
+                readSchedule(fileName);
+                displayMenu(); 
+                input = scanner.nextInt(); 
             }
         }
         scanner.close();
@@ -123,7 +131,7 @@ public class PSS {
             Float taskStartTime = scanner.nextFloat();
             verifyCollision(taskStartDate, taskStartTime, scanner);
             while(taskStartTime > 23.75 || taskStartTime < 0.25 || taskStartTime % (.25) != 0){
-                System.out.println("Invalid duration. Please input a valid duration between 0.25 and 23.75"); 
+                System.out.println("Invalid start time. Please input a valid start time between 0.25 and 23.75"); 
                 taskStartTime= scanner.nextFloat(); 
             }
             
@@ -498,14 +506,11 @@ public class PSS {
 
 
     public static void verifyDate(String taskStartDate, Scanner scanner){
-            //Scanner scanner2 = new Scanner(System.in);
             // check if start date is valid
-            // 20200415
             String month = taskStartDate.substring(4,6);
             if(month.substring(0).equals("0")){
                 month = taskStartDate.substring(5,6); 
             } 
-            
             
             int monthInt = Integer.parseInt(month);
             if(monthInt > 12 || monthInt < 1){
@@ -873,59 +878,88 @@ public class PSS {
             
     }
 
-    public static void readSchedule() throws IOException, ParseException{
+    public static void readSchedule(String fileName) throws IOException, ParseException{
         
         JSONParser parser = new JSONParser();
 
         try{
-            JSONArray a = (JSONArray) parser.parse(new FileReader("E:/Set1.json"));
+            JSONArray a = (JSONArray) parser.parse(new FileReader(fileName));
             
             for(Object o : a){
-                JSObject task = (JSObject) o;
+                JSONObject task = (JSONObject) o;
                 String taskName = (String) task.get("Name");
                 String taskType = (String) task.get("Type"); 
+
+                System.out.println(taskType); 
 
                 if(taskType.equalsIgnoreCase("Class") || taskType.equalsIgnoreCase("Study") || taskType.equalsIgnoreCase("Exercise") || taskType.equalsIgnoreCase("Sleep") ||
                 taskType.equalsIgnoreCase("Work") || taskType.equalsIgnoreCase("Meal")){
 
-                Object[] recurringAttributes = new Object[7];
-
-                String taskStartDate = (String)jsonObject.get("StartDate");
-                Float taskStartTime = (Float)jsonObject.get("StartTime");
-                Float taskDuration = (Float)jsonObject.get("Duration");
-                String taskEndDate = (String)jsonObject.get("EndDate");
+                //Object[] recurringAttributes = new Object[7];
                 
-                int freq = (int)jsonObject.get("Frequency");
-                Integer taskFrequnecy = new Integer(freq); 
+                // Reading each key in the JSON object and casting it to the variable types we need for validating user input
+                Long startDate = (Long)task.get("StartDate");
+                String taskStartDate = String.valueOf(startDate); 
 
-                recurringAttributes[0] = taskName; 
-                recurringAttributes[1] = taskType;
-                recurringAttributes[2] = taskStartDate;
-                recurringAttributes[3] = taskStartTime;
-                recurringAttributes[4] = taskEndDate;
-                recurringAttributes[5] = taskDuration;
-                recurringAttributes[6] = taskFrequnecy;
+                Long startTime = (Long)task.get("StartTime");
+                String startTime1 = String.valueOf(startTime);
+                float taskStartTime = Float.parseFloat(startTime1); 
+
+                double duration = (double)task.get("Duration");
+                float duration1  = (float) duration;
+                Float taskDuration = new Float(duration1);  
+
+                Long endDate = (Long)task.get("EndDate");
+                String taskEndDate = String.valueOf(endDate); 
+                
+                long freq = (long)task.get("Frequency");
+                int taskFrequency = (int)freq; 
+                //Integer taskFrequency = new Integer(freq1); 
+
+                RecurringTask newTask = new RecurringTask(taskName, taskType, taskStartDate, taskStartTime, taskDuration, taskEndDate, taskFrequency); 
+                taskList.add(newTask); 
+
+                // recurringAttributes[0] = taskName; 
+                // recurringAttributes[1] = taskType;
+                // recurringAttributes[2] = taskStartDate;
+                // recurringAttributes[3] = taskStartTime;
+                // recurringAttributes[4] = taskEndDate;
+                // recurringAttributes[5] = taskDuration;
+                // recurringAttributes[6] = taskFrequnecy;
                  
-                createTaskFromFile(recurringAttributes);
+                // createTaskFromFile(recurringAttributes);
             }
 
-            else if(taskType.equalsIgnoreCase("Visit") || taskType.equalsIgnoreCase("Shopping") || taskType.equalsIgnoreCase("Appointment")){
-                Object[] transientAttributes = new Object[5];
+            else if(taskType.equalsIgnoreCase("Visit") || taskType.equalsIgnoreCase("Shopping") || taskType.equalsIgnoreCase("Appointment") ||
+            taskType.equalsIgnoreCase("Cancellation")){
+                // Object[] transientAttributes = new Object[5];
 
-                String taskStartDate = (String)jsonObject.get("Date");
-                Float taskStartTime = (Float)jsonObject.get("StartTime");
-                Float taskDuration = (Float)jsonObject.get("Duration");
+                Long startDate = (Long)task.get("StartDate");
+                String taskStartDate = String.valueOf(startDate); 
 
-                transientAttributes[0] = taskName; 
-                transientAttributes[1] = taskType;
-                transientAttributes[2] = taskStartDate;
-                transientAttributes[3] = taskStartTime;
-                transientAttributes[4] = taskDuration;
+                Long startTime = (Long)task.get("StartTime");
+                String startTime1 = String.valueOf(startTime);
+                float taskStartTime = Float.parseFloat(startTime1); 
 
-                createTaskFromFile(transientAttributes);
+                double duration = (double)task.get("Duration");
+                float duration1  = (float) duration;
+                Float taskDuration = new Float(duration1);
+                String category = "Transient"; 
+
+                TransientTask newTask = new TransientTask(taskName, taskType, taskStartDate, taskStartTime, taskDuration, category); 
+                taskList.add(newTask); 
+
+
+                // transientAttributes[0] = taskName; 
+                // transientAttributes[1] = taskType;
+                // transientAttributes[2] = taskStartDate;
+                // transientAttributes[3] = taskStartTime;
+                // transientAttributes[4] = taskDuration;
+
+                //createTaskFromFile(transientAttributes);
              }
              else {
-                    System.out.println("No task with this type");
+                    System.out.println("Schedule invalid. There's a task with an invalid type.");
                 }
             }
         }
@@ -938,8 +972,151 @@ public class PSS {
 
     public static void createTaskFromFile(Object[] attributes){
 
+        if(attributes.length == 7){
+
+            // check if task's name is unique 
+            for(int i = 0; i < taskList.size(); i++ ){
+                if(taskList.get(i).getName().equals(attributes[0])){
+                    System.out.println("Task name is not unique."); 
+                    return ; 
+                }
+            }
+
+            
+            // check if start date is valid 
+            String taskStartDate = String.valueOf(attributes[2]); 
+
+            String month = taskStartDate.substring(4,6);
+            if(month.substring(0).equals("0")){
+                month = taskStartDate.substring(5,6); 
+            } 
+            
+            int monthInt = Integer.parseInt(month);
+            if(monthInt > 12 || monthInt < 1){
+                return ;  
+            }
+
+            String date = taskStartDate.substring(6,8); 
+            int dateInt = Integer.parseInt(date); 
+            
+            if(monthInt == 1 || monthInt == 3 || monthInt == 5 || monthInt == 7 || monthInt == 8 || monthInt == 10 ||monthInt == 12){
+                if (dateInt > 31 || dateInt < 1){
+                    System.out.println("Invalid date."); 
+                    return ; 
+                }
+            }
+
+            else if (monthInt == 4 || monthInt == 6 || monthInt == 9 || monthInt ==11){
+                if (dateInt > 30 || dateInt < 1){
+                    System.out.println("Invalid date."); 
+                    return ;
+                }
+            }
+
+            // February
+            else if (monthInt == 2){
+                if (dateInt > 29 || dateInt < 1){
+                    System.out.println("Invalid date."); 
+                    return ;
+                }
+            }
+
+            
+            // check start time 
+            float taskStartTime = Float.parseFloat((String) attributes[3]); 
+            for(int i = 0; i < taskList.size(); i++){
+                if(taskList.get(i).getStartDate().equals(taskStartDate)){
+                    while(taskStartTime >= taskList.get(i).getStartTime() && (taskList.get(i).getStartTime() + taskList.get(i).getDuration()) > taskStartTime){
+                        System.out.println("Invalid start time. ");
+                        return ; 
+                    }
+                }
+            }
+            while(taskStartTime > 23.75 || taskStartTime < 0.25 || taskStartTime % (.25) != 0){
+                System.out.println("Invalid duration."); 
+                return ;
+            }
+
+            // check end date
+
+            String taskEndDate = (String) attributes[4];
+
+            String endmonth = taskEndDate.substring(4,5);
+            if(endmonth.substring(0).equals("0")){
+                endmonth = taskEndDate.substring(5,6); 
+            } 
+            
+            month = taskStartDate.substring(4,5);
+            if(month.substring(0).equals("0")){
+                month = taskStartDate.substring(5,6); 
+            } 
+            monthInt = Integer.parseInt(month);
+            if(monthInt > 12 || monthInt < 1){
+                System.out.println("Invalid Month."); 
+            }
+            int endmonthInt = Integer.parseInt(endmonth);
+            if(endmonthInt > 12 || endmonthInt < 1 || !(endmonthInt < monthInt)){
+                System.out.println("Invalid Month."); 
+            }
+
+            String enddate = taskStartDate.substring(6,8); 
+            int enddateInt = Integer.parseInt(enddate); 
+            
+            if(endmonthInt == 1 || endmonthInt == 3 || endmonthInt == 5 || endmonthInt == 7 || endmonthInt == 8 || endmonthInt == 10 || endmonthInt == 12){
+                if(enddateInt > 31 || enddateInt < 1){
+                    System.out.println("Invalid end date."); 
+                    return ;  
+                }
+            }
+
+            else if (endmonthInt == 4 || endmonthInt == 6 || endmonthInt == 9 || endmonthInt == 11){
+                if(enddateInt > 30 || enddateInt < 1){
+                    System.out.println("Invalid end date."); 
+                    return ; 
+                }
+            }
+
+            // February
+            else if (endmonthInt == 2){
+                if(enddateInt > 29 || enddateInt < 1){
+                    System.out.println("Invalid end date."); 
+                    return ;  
+                }
+            }
+
+             // check duration
+            Float value = (Float) attributes[4]; 
+            float taskDuration  =  value.floatValue(); 
         
+        
+            for(int i = 0; i < taskList.size(); i++){
+                if(taskList.get(i).getStartDate().equals(taskStartDate)){
+                    if(taskDuration < taskList.get(i).getStartTime() && (taskDuration + taskStartTime) > (taskList.get(i).getDuration() + taskList.get(i).getStartTime())) {
+                        System.out.println("Invalid duration.");
+                        return ; 
+                }
+            }
+        }
+            
+            if(taskDuration > 23.75 || taskDuration < 0.25 || taskDuration % (.25) != 0){
+                System.out.println("Invalid duration."); 
+                return ; 
+            }
+
+            int taskFrequency = (int) attributes[6]; 
+            String taskName = (String) attributes[0]; 
+            String taskType = (String) attributes[1]; 
+
+
+            RecurringTask newTask = new RecurringTask(taskName, taskType, taskStartDate, taskStartTime, taskDuration, taskEndDate, taskFrequency); 
+            taskList.add(newTask);     
     }
+        }
+
+        
+
+
+       
 }
 
 

@@ -5,7 +5,7 @@ public class Task{
     private String startDate;
     private float startTime;
     private float duration;
-    private String endDate;
+    private String endDate; 
     private String category;
 
     public Task(){
@@ -17,7 +17,7 @@ public class Task{
         this.startDate = startDate;
         this.startTime = startTime;
         this.duration = duration;
-        this.endDate = endDate;
+        this.endDate = endDate; 
     }
 
     public String getName(){
