@@ -6,6 +6,8 @@ import java.util.*;
 import org.json.simple.*;
 import org.json.simple.parser.*;
 
+import netscape.javascript.JSObject;
+
 public class PSS {
     
     public static ArrayList<Task> taskList = new ArrayList<Task>(); 
@@ -195,6 +197,7 @@ public class PSS {
 
             System.out.println("Input the start time: \n");
             Float taskStartTime = scanner.nextFloat();
+            verifyCollision(taskStartDate, taskStartTime, scanner);
 
             while(taskStartTime > 23.75 || taskStartTime < 0.25 || taskStartTime % (.25) != 0){
                 System.out.println("Invalid duration. Please input a valid duration between 0.25 and 23.75"); 
@@ -204,6 +207,7 @@ public class PSS {
 
             System.out.println("Input the duration: ");
             Float taskDuration = scanner.nextFloat();  
+            verifyCollision(taskDuration, taskStartDate, taskStartTime, scanner);
         
             while(taskDuration > 23.75 || taskDuration < 0.25 || taskDuration % (.25) != 0){
                 System.out.println("Invalid duration. Please input a valid duration between 0.25 and 23.75"); 
@@ -344,7 +348,12 @@ public class PSS {
                startDateInt = 0;
                startDateInt = startDateInt + 1;
                startMonthInt += 1;
-               startMonth = String.valueOf(startMonthInt);
+               if(startMonthInt < 10){
+                   startMonth = "0" + String.valueOf(startMonthInt);
+               }
+               else {
+                   startMonth = String.valueOf(startMonthInt);
+               }
             }
             else {
                 startDateInt = startDateInt + 1;
@@ -452,16 +461,16 @@ public class PSS {
          // checking how many days in month to mod to get how many more days till we add
         
          // bad conditon
-         while(count < times){
-            startDateInt += 7; 
+         for(int i = 0; i <= times / 7; i++){
             if(startDateInt > daysMonth){
                 startDateInt = startDateInt % daysMonth;
                 startMonthInt += 1;
-                startMonth = String.valueOf(startMonthInt);
-                count += 7;
-             }
-             else {
-                 count += 7;
+                if(startMonthInt < 10){
+                    startMonth = "0" + String.valueOf(startMonthInt);
+                }
+                else {
+                    startMonth = String.valueOf(startMonthInt);
+                }
              }
                         
             if(startDateInt < 10){
@@ -483,6 +492,7 @@ public class PSS {
              newTask.setStartTime(recurringTask.getStartTime());
              newTask.setStartDate(combine);
              taskList.add(newTask);
+             startDateInt += 7; 
          }
     }
 
@@ -599,15 +609,11 @@ public class PSS {
 
     public static void verifyCollision(Float taskDuration, String taskStartDate, float taskStartTime, Scanner scanner){
         for(int i = 0; i < taskList.size(); i++){
-            // && (taskList.get(i).getStartTime() + taskList.get(i).getDuration()) > taskStartTime
             if(taskList.get(i).getStartDate().equals(taskStartDate)){
-                if(taskStartTime + taskDuration> taskList.get(i).getStartTime())
-                    if((taskList.get(i).getStartTime() + taskList.get(i).getDuration()) > (taskDuration + taskStartTime))
-                        if(taskStartTime < taskList.get(i).getStartTime())
-                            if((taskStartTime + taskDuration) >= (taskList.get(i).getDuration() + taskList.get(i).getStartTime())){
-                                System.out.println("Invalid time. Re-enter a new duration.");
-                                taskStartTime = scanner.nextFloat();
-                            }
+                while(taskStartTime < taskList.get(i).getStartTime() && (taskDuration + taskStartTime) > (taskList.get(i).getDuration() + taskList.get(i).getStartTime())) {
+                    System.out.println("Invalid time. Re-enter a new duration.");
+                    taskStartTime = scanner.nextFloat();
+                }
                 //while((taskStartTime + taskDuration) > taskList.get(i).getStartTime() && (taskList.get(i).getStartTime() + taskList.get(i).getDuration()) > (taskDuration + taskStartTime) && (taskStartTime < taskList.get(i).getStartTime()) && (taskStartTime + taskDuration) >= (taskList.get(i).getDuration() + taskList.get(i).getStartTime())){
                    
                // }
@@ -854,8 +860,8 @@ public class PSS {
             System.out.println("Start date: " + taskList.get(i).getStartDate());
             System.out.println("Start time: " + taskList.get(i).getStartTime());
             System.out.println("Duration: " + taskList.get(i).getDuration());
-            System.out.println("End date: " + taskList.get(i).getEndDate());
-            System.out.println("Frequency: " + taskList.get(i).getFrequency());
+            //System.out.println("End date: " + taskList.get(i).getEndDate());
+            //System.out.println("Frequency: " + taskList.get(i).getFrequency());
         }
         else if (taskList.get(i).getCategory().equalsIgnoreCase("Transient") || taskList.get(i).getCategory().equalsIgnoreCase("transient")) {
             System.out.println("Name: " + taskList.get(i).getName());
@@ -872,14 +878,15 @@ public class PSS {
         JSONParser parser = new JSONParser();
 
         try{
-            Object obj = parser.parse(new FileReader("Set1.json"));
-            JSONObject jsonObject = (JSONObject)obj;
+            JSONArray a = (JSONArray) parser.parse(new FileReader("E:/Set1.json"));
+            
+            for(Object o : a){
+                JSObject task = (JSObject) o;
+                String taskName = (String) task.get("Name");
+                String taskType = (String) task.get("Type"); 
 
-            String taskName = (String)jsonObject.get("Name");
-            String taskType = (String)jsonObject.get("Type"); 
-
-            if(taskType.equalsIgnoreCase("Class") || taskType.equalsIgnoreCase("Study") || taskType.equalsIgnoreCase("Exercise") || taskType.equalsIgnoreCase("Sleep") ||
-            taskType.equalsIgnoreCase("Work") || taskType.equalsIgnoreCase("Meal")){
+                if(taskType.equalsIgnoreCase("Class") || taskType.equalsIgnoreCase("Study") || taskType.equalsIgnoreCase("Exercise") || taskType.equalsIgnoreCase("Sleep") ||
+                taskType.equalsIgnoreCase("Work") || taskType.equalsIgnoreCase("Meal")){
 
                 Object[] recurringAttributes = new Object[7];
 
@@ -902,7 +909,7 @@ public class PSS {
                 createTaskFromFile(recurringAttributes);
             }
 
-            else {
+            else if(taskType.equalsIgnoreCase("Visit") || taskType.equalsIgnoreCase("Shopping") || taskType.equalsIgnoreCase("Appointment")){
                 Object[] transientAttributes = new Object[5];
 
                 String taskStartDate = (String)jsonObject.get("Date");
@@ -916,8 +923,13 @@ public class PSS {
                 transientAttributes[4] = taskDuration;
 
                 createTaskFromFile(transientAttributes);
+             }
+             else {
+                    System.out.println("No task with this type");
+                }
             }
         }
+      
         catch(FileNotFoundException e){
             e.printStackTrace();
         }
