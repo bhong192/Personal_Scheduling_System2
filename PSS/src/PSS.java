@@ -60,6 +60,8 @@ public class PSS {
             else if(input ==5){
                 sorting();
                 writeSchedule();
+                displayMenu();
+                input = scanner.nextInt();
             }
             else if(input == 6){
                 System.out.println("Enter the schedule file's name: "); 
@@ -455,6 +457,7 @@ public class PSS {
             newTask.setCategory(recurringTask.getCategory());
             newTask.setName(recurringTask.getName());
             newTask.setDuration(recurringTask.getDuration());
+            newTask.setEndDate(recurringTask.getEndDate());
             newTask.setType(recurringTask.getType());
             newTask.setStartTime(recurringTask.getStartTime());
             newTask.setStartDate(combine);
@@ -573,6 +576,7 @@ public class PSS {
              newTask.setCategory(recurringTask.getCategory());
              newTask.setName(recurringTask.getName());
              newTask.setDuration(recurringTask.getDuration());
+             newTask.setEndDate(recurringTask.getEndDate());
              newTask.setType(recurringTask.getType());
              newTask.setStartTime(recurringTask.getStartTime());
              newTask.setStartDate(combine);
@@ -1091,13 +1095,14 @@ public class PSS {
                     jsonObj.put("Type", taskList.get(i).getType());
                     Long startDate = Long.parseLong(taskList.get(i).getStartDate());
                     jsonObj.put("StartDate",startDate);
-                    jsonObj.put("StartTime", taskList.get(i).getStartTime());
+                    Long startTime = (new Double((taskList.get(i).getStartTime()))).longValue();
+                    jsonObj.put("StartTime",startTime);
                     jsonObj.put("Duration", taskList.get(i).getDuration());
                     Long endDate = Long.parseLong(taskList.get(i).getEndDate());
                     jsonObj.put("EndDate", endDate);
                     jsonObj.put("Frequency", taskList.get(i).getFrequency());
                     jsonArray.add(jsonObj);
-                    file.write(jsonObj.toJSONString());
+                    
                     
                 }
                 else if(taskList.get(i).getCategory().equalsIgnoreCase("Transient") || taskList.get(i).getCategory().equalsIgnoreCase("transient")){
@@ -1105,10 +1110,11 @@ public class PSS {
                     jsonObj.put("Type", taskList.get(i).getType());
                     Long startDate = Long.parseLong(taskList.get(i).getStartDate());
                     jsonObj.put("StartDate",startDate);
-                    jsonObj.put("StartTime", taskList.get(i).getStartTime());
+                    Long startTime = (new Double((taskList.get(i).getStartTime()))).longValue();
+                    jsonObj.put("StartTime", startTime);
                     jsonObj.put("Duration", taskList.get(i).getDuration());
                     jsonArray.add(jsonObj);
-                    file.write(jsonObj.toJSONString());
+                    
                 
                 }
                 /*else if(taskList.get(i).getCategory().equalsIgnoreCase("Anti-Task") || taskList.get(i).getCategory().equalsIgnoreCase("anti-task")){
@@ -1129,6 +1135,7 @@ public class PSS {
             if(found){
                 System.out.println("Invalid type.");
             }
+            file.write(jsonArray.toJSONString());
             file.close();
         }catch (IOException e) {
             // TODO Auto-generated catch block
