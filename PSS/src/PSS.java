@@ -58,8 +58,10 @@ public class PSS {
                 input = scanner.nextInt();
             }
             else if(input ==5){
+                scanner.nextLine(); 
                 sorting();
-                writeSchedule();
+                String userInput = scanner.nextLine();
+                writeSchedule(userInput);
                 displayMenu();
                 input = scanner.nextInt();
             }
@@ -71,8 +73,27 @@ public class PSS {
                 displayMenu(); 
                 input = scanner.nextInt(); 
             }
+            else if(input == 7){
+                scanner.nextLine();
+                System.out.println("Enter date to view or write: "); 
+                taskName = scanner.nextLine();
+                viewDaily(taskName, scanner);
+                displayMenu(); 
+                input = scanner.nextInt(); 
+            }
         }
         scanner.close();
+    }
+    public static void viewDaily(String task, Scanner scanner)){
+        
+
+    }
+    public static void displayMenuDaily(){
+        System.out.println("-----------------------------");
+        System.out.println("1 - Enter 1 to view schedule for a specific date: ");
+        System.out.println("2 - Enter 2 to write schedule for a specific date: ");
+        System.out.println("3 - exit");
+        System.out.println("-----------------------------");
     }
     public static void displayMenu(){
         System.out.println("-----------------------------");
@@ -1080,13 +1101,13 @@ public class PSS {
         
     }
 
-    public static void writeSchedule() throws IOException, ParseException{
+    public static void writeSchedule(String userInput) throws IOException, ParseException{
         
         JSONArray jsonArray = new JSONArray();
         boolean found = false;
 
         try{
-            FileWriter file = new FileWriter("E:/output.json");
+            FileWriter file = new FileWriter(userInput);
 
             for(int i = 0; i < taskList.size(); i++){
                 JSONObject jsonObj = new JSONObject();
@@ -1142,6 +1163,38 @@ public class PSS {
             e.printStackTrace();
          }
 
+    }
+    public static writeScheduleDaily(String userInput){
+        String startMonth;
+        String startDate;
+        String userMonth = userInput.substring(4,6);
+        if(userMonth.substring(0).equals("0")){
+            userMonth = userInput.substring(5, 6);
+        }
+        int userMonthInt = Integer.parseInt(userMonth);
+
+        String userDate = userInput.substring(6,8);
+        if(userDate.substring(0).equals("0")){
+            userDate = userInput.substring(7, 8);
+        }
+        int userDateInt = Integer.parseInt(userMonth);
+
+        for(int i = 0; i < taskList.size(); i++){
+            startMonth = taskList.get(i).getStartDate().substring(4,6);
+            if(startMonth.substring(0).equals("0")){
+                startMonth = recurringTask.getStartDate().substring(5,6); 
+            } 
+            int startMonthInt = Integer.parseInt(startMonth);
+            startDate = taskList.get(i).getStartDate().substring(6,8);
+            if(startDate.substring(0).equals("0")){
+                startDate = recurringTask.getStartDate().substring(7,8);
+            }
+            int startDateInt = Integer.parseInt(startDate);
+           
+            if(userMonthInt == startMonthInt && (userDateInt) == (startDateInt)){
+                
+            }
+        }
     }
 
 
