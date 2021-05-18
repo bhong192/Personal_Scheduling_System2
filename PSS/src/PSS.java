@@ -15,13 +15,14 @@ public class PSS {
     public static void main(String[] args) throws IOException, ParseException{
         Scanner scanner = new Scanner(System.in); 
         int input;
+        String taskStartDate;
         String taskName;
     
         displayMenu();
         input = scanner.nextInt();
         
         
-        while(input != 7){
+        while(input != 8){
 
             if(input == 1){
                 // clear buffer or else code breaks
@@ -75,18 +76,170 @@ public class PSS {
             }
             else if(input == 7){
                 scanner.nextLine();
+                sorting();
                 System.out.println("Enter date to view or write: "); 
-                taskName = scanner.nextLine();
-                viewDaily(taskName, scanner);
+                taskStartDate = scanner.nextLine();
+                viewDaily(taskStartDate, scanner);
                 displayMenu(); 
                 input = scanner.nextInt(); 
             }
         }
         scanner.close();
     }
-    public static void viewDaily(String task, Scanner scanner)){
-        
+    public static List<Task> findMonthly(String taskStartDate){
+        String startMonth;
+        String startDate;
+        int count = 0;
 
+        List<Task> dailyList = new ArrayList<Task>();
+
+        // parsing the user input into int
+        String userMonth = taskStartDate.substring(4,6);
+        if(userMonth.substring(0).equals("0")){
+            userMonth = taskStartDate.substring(5, 6);
+        }
+        int userMonthInt = Integer.parseInt(userMonth);
+
+        String userDate = taskStartDate.substring(6,8);
+        if(userDate.substring(0).equals("0")){
+            userDate = taskStartDate.substring(7, 8);
+        }
+        int userDateInt = Integer.parseInt(userMonth);
+
+        for(int i = 0; i < taskList.size(); i++){
+            // parsing the dates and month of task list into int to compare 
+            startMonth = taskList.get(i).getStartDate().substring(4,6);
+            if(startMonth.substring(0).equals("0")){
+                startMonth = taskList.get(i).getStartDate().substring(5,6); 
+            } 
+            int startMonthInt = Integer.parseInt(startMonth);
+            startDate = taskList.get(i).getStartDate().substring(6,8);
+            if(startDate.substring(0).equals("0")){
+                startDate = taskList.get(i).getStartDate().substring(7,8);
+            }
+            int startDateInt = Integer.parseInt(startDate);
+
+           
+            if(userMonthInt == startMonthInt && (userDateInt + count) <= (startDateInt + 31)){
+                dailyList.add(taskList.get(i));
+                count++;
+            }
+        }
+
+        return dailyList;
+    }
+    public static List<Task> findWeekly(String taskStartDate){
+        String startMonth;
+        String startDate;
+        int count = 0;
+
+        List<Task> dailyList = new ArrayList<Task>();
+
+        // parsing the user input into int
+        String userMonth = taskStartDate.substring(4,6);
+        if(userMonth.substring(0).equals("0")){
+            userMonth = taskStartDate.substring(5, 6);
+        }
+        int userMonthInt = Integer.parseInt(userMonth);
+
+        String userDate = taskStartDate.substring(6,8);
+        if(userDate.substring(0).equals("0")){
+            userDate = taskStartDate.substring(7, 8);
+        }
+        int userDateInt = Integer.parseInt(userMonth);
+
+        for(int i = 0; i < taskList.size(); i++){
+            // parsing the dates and month of task list into int to compare 
+            startMonth = taskList.get(i).getStartDate().substring(4,6);
+            if(startMonth.substring(0).equals("0")){
+                startMonth = taskList.get(i).getStartDate().substring(5,6); 
+            } 
+            int startMonthInt = Integer.parseInt(startMonth);
+            startDate = taskList.get(i).getStartDate().substring(6,8);
+            if(startDate.substring(0).equals("0")){
+                startDate = taskList.get(i).getStartDate().substring(7,8);
+            }
+            int startDateInt = Integer.parseInt(startDate);
+
+           
+            if(userMonthInt == startMonthInt && (userDateInt + count) <= (startDateInt + 7)){
+                dailyList.add(taskList.get(i));
+                count++;
+            }
+        }
+
+        return dailyList;
+    }
+    public static List<Task> findDaily(String taskStartDate){
+        List<Task> dailyList = new ArrayList<Task>();
+
+        for(int i = 0; i < taskList.size(); i++){
+
+            if(taskStartDate.equals(taskList.get(i).getStartDate())){
+                dailyList.add(taskList.get(i));
+            }
+        }
+
+        return dailyList;
+
+    }
+    public static void displayFromSchedule(List<Task> dailyTask, int i){
+        if(dailyTask.get(i).getCategory().equalsIgnoreCase("Recurring") || dailyTask.get(i).getCategory().equalsIgnoreCase("recurring")){
+            System.out.println("Name: " + dailyTask.get(i).getName());
+            System.out.println("Type: " + dailyTask.get(i).getType());
+            System.out.println("Start date: " + dailyTask.get(i).getStartDate());
+            System.out.println("Start time: " + dailyTask.get(i).getStartTime());
+            System.out.println("Duration: " + dailyTask.get(i).getDuration());
+            System.out.println("-----------------------------");
+            //System.out.println("End date: " + taskList.get(i).getEndDate());
+            //System.out.println("Frequency: " + taskList.get(i).getFrequency());
+        }
+        else if (dailyTask.get(i).getCategory().equalsIgnoreCase("Transient") || dailyTask.get(i).getCategory().equalsIgnoreCase("transient")) {
+            System.out.println("Name: " + dailyTask.get(i).getName());
+            System.out.println("Type: " + dailyTask.get(i).getType());
+            System.out.println("Start date: " + dailyTask.get(i).getStartDate());
+            System.out.println("Start time: " + dailyTask.get(i).getStartTime());
+            System.out.println("Duration: " + dailyTask.get(i).getDuration());
+            System.out.println("-----------------------------");
+        }
+    }
+    public static void viewDaily(String taskStartDate, Scanner scanner){
+        displayMenuDaily();
+        int input = scanner.nextInt();
+
+        String userMonth = taskStartDate.substring(4,6);
+        if(userMonth.substring(0).equals("0")){
+            userMonth = taskStartDate.substring(5, 6);
+        }
+        int userMonthInt = Integer.parseInt(userMonth);
+
+        String userDate = taskStartDate.substring(6,8);
+        if(userDate.substring(0).equals("0")){
+            userDate = taskStartDate.substring(7, 8);
+        }
+        int userDateInt = Integer.parseInt(userMonth);
+
+        List<Task> dailyList = findDaily(taskStartDate);
+        while(input != 3){
+
+            if(input == 1){
+                
+                for(int i = 0; i < dailyList.size(); i++){
+                    displayFromSchedule(dailyList, i);
+                }
+                displayMenuDaily();
+                input = scanner.nextInt();
+                
+            }
+            else if(input == 2){
+                writeScheduleDaily(userDateInt, userMonthInt, dailyList);
+                displayMenuDaily();
+                input = scanner.nextInt();
+            }
+
+           
+        }
+  
     }
     public static void displayMenuDaily(){
         System.out.println("-----------------------------");
@@ -103,7 +256,8 @@ public class PSS {
         System.out.println("4 - Enter 4 to edit Task: ");
         System.out.println("5 - Enter 5 to write Task: ");
         System.out.println("6 - Enter 6 to read Task: ");
-        System.out.println("7 - exit");
+        System.out.println("7 - Enter 7 to view or read daily");
+        System.out.println("8 - exit");
         System.out.println("-----------------------------");
     }
     public static void createTask(Scanner scanner){
@@ -1164,39 +1318,67 @@ public class PSS {
          }
 
     }
-    public static writeScheduleDaily(String userInput){
-        String startMonth;
-        String startDate;
-        String userMonth = userInput.substring(4,6);
-        if(userMonth.substring(0).equals("0")){
-            userMonth = userInput.substring(5, 6);
-        }
-        int userMonthInt = Integer.parseInt(userMonth);
+    public static void writeScheduleDaily(int userDateInt, int userMonthInt, List<Task> dailyList){
+        JSONArray jsonArray = new JSONArray();
+        boolean found = false;
 
-        String userDate = userInput.substring(6,8);
-        if(userDate.substring(0).equals("0")){
-            userDate = userInput.substring(7, 8);
-        }
-        int userDateInt = Integer.parseInt(userMonth);
+        try{
+            FileWriter file = new FileWriter("D:/Daily.json");
 
-        for(int i = 0; i < taskList.size(); i++){
-            startMonth = taskList.get(i).getStartDate().substring(4,6);
-            if(startMonth.substring(0).equals("0")){
-                startMonth = recurringTask.getStartDate().substring(5,6); 
-            } 
-            int startMonthInt = Integer.parseInt(startMonth);
-            startDate = taskList.get(i).getStartDate().substring(6,8);
-            if(startDate.substring(0).equals("0")){
-                startDate = recurringTask.getStartDate().substring(7,8);
-            }
-            int startDateInt = Integer.parseInt(startDate);
-           
-            if(userMonthInt == startMonthInt && (userDateInt) == (startDateInt)){
+            for(int i = 0; i < dailyList.size(); i++){
+                JSONObject jsonObj = new JSONObject();
+                if(dailyList.get(i).getCategory().equalsIgnoreCase("recurring") || dailyList.get(i).getCategory().equalsIgnoreCase("Recurring")){
+                    jsonObj.put("Name", dailyList.get(i).getName());
+                    jsonObj.put("Type", dailyList.get(i).getType());
+                    Long startDate = Long.parseLong(dailyList.get(i).getStartDate());
+                    jsonObj.put("StartDate",startDate);
+                    Long startTime = (new Double((dailyList.get(i).getStartTime()))).longValue();
+                    jsonObj.put("StartTime",startTime);
+                    jsonObj.put("Duration", dailyList.get(i).getDuration());
+                    Long endDate = Long.parseLong(dailyList.get(i).getEndDate());
+                    jsonObj.put("EndDate", endDate);
+                    jsonObj.put("Frequency", dailyList.get(i).getFrequency());
+                    jsonArray.add(jsonObj);
+                    
+                    
+                }
+                else if(dailyList.get(i).getCategory().equalsIgnoreCase("Transient") || dailyList.get(i).getCategory().equalsIgnoreCase("transient")){
+                    jsonObj.put("Name", dailyList.get(i).getName());
+                    jsonObj.put("Type", dailyList.get(i).getType());
+                    Long startDate = Long.parseLong(dailyList.get(i).getStartDate());
+                    jsonObj.put("StartDate",startDate);
+                    Long startTime = (new Double((dailyList.get(i).getStartTime()))).longValue();
+                    jsonObj.put("StartTime", startTime);
+                    jsonObj.put("Duration", dailyList.get(i).getDuration());
+                    jsonArray.add(jsonObj);
+                    
                 
+                }
+                /*else if(taskList.get(i).getCategory().equalsIgnoreCase("Anti-Task") || taskList.get(i).getCategory().equalsIgnoreCase("anti-task")){
+                    jsonObj.put("Name", requestList.get(i).getName());
+                    jsonObj.put("Type", requestList.get(i).getType());
+                    Long startDate = Long.parseLong(requestList.get(i).getStartDate());
+                    jsonObj.put("Date",startDate);
+                    jsonObj.put("StartTime", requestList.get(i).getStartTime());
+                    jsonObj.put("Duration", requestList.get(i).getDuration());
+                    jsonArray.add(jsonObj);
+                    file.write(jsonObj.toJSONString());
+                    
+                } */
+                else {
+                    found = true;
+                }
             }
-        }
+            if(found){
+                System.out.println("Invalid type.");
+            }
+            file.write(jsonArray.toJSONString());
+            file.close();
+        }catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+         }
     }
-
 
                
 }
